@@ -1,0 +1,69 @@
+<!-- /*
+ * Author
+ * Ameya Zambre
+ * ameyazambre@gmail.com
+ */ -->
+ <!doctype html>
+ <html>
+ <head>
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="css/monitorStylesheet.css">
+  <title>Einthusan Monitor Preferences</title>
+</head>
+<body style="width:auto;">
+  <div id='preferencesPageRootDiv'>
+    <div style="text-align:right;padding-right:5px;">
+      <i class="icon-exclamation-sign"></i>
+      <a href="https://chrome.google.com/webstore/support/khhfpiaglmihaifnfocggdmifdeigkhg" style="font-family:Open Sans, sans-serif; font-size:12px;" target="blank">Report Bug/Suggest Feature</a>
+    </div>
+    <div id='preferencesPageIcon'>
+      <img src='icon128.png'></img>
+    </div>
+    <table id="preferencesTable">
+      <tr>
+        <td>
+          <label class="control-label">Default Language:</label>
+        </td>
+        <td>
+          <div class="input-append controls" style = 'margin-left:20px;'>
+            <div class="btn-group">
+              <button id='selectedLanguage' class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+              <ul id='languageList' class="dropdown-menu">
+              </ul>
+            </div>
+          </div>
+          <span class="help-inline">Default selected language on popup launch</span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label class="control-label">Refresh Interval:</label>
+        </td>
+        <td>
+          <div class="input-append controls" style = 'margin-left:20px;'>
+            <input class="span2" id="timeValue" type="text">
+            <div class="btn-group">
+              <button id='selectedTimeUnit' class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+              <ul class="dropdown-menu">
+                <li><a href="#">Hours</a></li>
+                <li><a href="#">Minutes</a></li>
+                <li><a href="#">Seconds</a></li>
+              </ul>
+            </div>
+          </div>
+          <span class="help-inline">Refresh interval for the movies data</span>
+        </td>
+      </tr>
+    </table>
+    <div style="text-align:center;">
+      <i class="icon-refresh" style=""></i>
+      <p class="lastUpdated"></p>
+    </div>
+  </div>
+</body>
+<footer>
+  <script src="js/jquery-2.0.3.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="options.js"></script>
+</footer>
+</html>

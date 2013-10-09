@@ -1,0 +1,353 @@
+body 
+{
+  width:360px;
+  overflow: hidden;
+  font-family: 'Open Sans', sans-serif;
+}
+button
+{
+  font-family: 'Open Sans', sans-serif;
+}
+
+/*Popup*/
+div#progressIndicatorDiv>div
+{
+  margin-left:103px; 
+  margin-top:20px; 
+  width:150px;
+}
+
+div#languageButtons
+{
+  opacity:0; 
+  margin-top:2px;
+  margin-bottom:5px;
+  text-align:center;
+  -webkit-transition:opacity 0.25s ease-out;
+}
+
+table#movieTitlesList, div#movieTitlesTiles
+{
+  opacity:0;
+  margin-bottom:0;
+  -webkit-transition: opacity 0.25s ease-out;
+  max-height:540px;
+  max-width: 360px;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+
+table#movieTitlesList>tbody
+{
+  max-height:540px;
+  max-width: 360px;
+  display: block;
+  overflow-y: auto;
+  overflow-x:hidden;
+}
+
+table#movieTitlesList>tbody::-webkit-scrollbar, div#movieTitlesTiles::-webkit-scrollbar
+{ 
+  width: 6px;
+
+}
+
+table#movieTitlesList>tbody::-webkit-scrollbar-track, div#movieTitlesTiles::-webkit-scrollbar-track
+{
+  -webkit-box-shadow: inset 0 0 4px rgba(120,120,120,1); 
+  border-radius: 4px;
+}
+
+table#movieTitlesList>tbody::-webkit-scrollbar-thumb, div#movieTitlesTiles::-webkit-scrollbar-thumb
+{
+  background: rgba(0,0,0,1); 
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 0 8px rgba(255,255,255,1); 
+}
+
+.icon-cog
+{
+  position:absolute; 
+  opacity:1.0; 
+  bottom:0; 
+  right:0; 
+  display:none;
+  -webkit-transition: opacity 0.15s ease-out;
+}
+
+.icon-search
+{
+  position:absolute; 
+  opacity:1.0; 
+  display:none;
+  -webkit-transition: opacity 0.15s ease-out;
+}
+
+div#toolsPanel
+{
+  background:rgba(128,0,0,1);
+  width:100%; 
+  position:absolute; 
+  opacity:0;
+  padding:2px;
+  -webkit-transition:top 0.25s ease-out, opacity 0.25s ease-out;
+}
+
+.badge
+{
+  opacity:1.0; 
+  -webkit-transition:top 1s ease-out, opacity 2s ease-out;
+}
+
+.listMovieCover
+{
+  height:60px;
+  width:42px;
+  float:left; 
+  margin-right:4px;
+}
+
+.tileMovieCover
+{
+  height:140px;
+  width:98px;
+  margin:2px;
+}
+
+.tileMovieNameDiv
+{
+  overflow:hidden; 
+  height: 20px; 
+  width:100px; 
+  white-space:nowrap; 
+  text-overflow:ellipsis; 
+  text-align:center;
+}
+
+.movieTile
+{
+  text-align:center;
+  float:left; 
+  margin:2px; 
+  padding:6px;
+  cursor:pointer;
+}
+
+.movieTile:hover
+{
+  /*background: #f5f5f5;*/
+  background-color: rgba(128,128,128,0.3);
+}
+
+.movieDescDiv
+{
+  height:40px; 
+  max-width:298px;
+  color:#555555; 
+  font-size:8pt;
+}
+
+.movieDescDiv::-webkit-scrollbar 
+{
+  width: 6px;
+}
+
+.movieDescDiv::-webkit-scrollbar-track 
+{
+  -webkit-box-shadow: inset 0 0 4px rgba(120,120,120,1); 
+  border-radius: 8px;
+}
+
+.movieDescDiv::-webkit-scrollbar-thumb 
+{
+  background: rgba(128,0,0,1); 
+  -webkit-box-shadow: inset 0 0 8px rgba(255,255,255,1); 
+  border-radius: 8px;
+}
+
+.movieDescDiv
+{
+  overflow:hidden; 
+}
+
+.movieDescDiv:hover
+{
+  overflow-y:scroll; 
+}
+
+/*Preferences Page*/
+div#preferencesPageRootDiv
+{
+  margin-left: auto; 
+  margin-right: auto; 
+  width: 900px; 
+  border: 1px solid #666666; 
+  margin-top: 20px; 
+  height: auto; 
+  box-shadow: 0px 4px 20px #666666; 
+  border-radius: 4px; 
+  background-color:rgba(200,200,200,0.1); 
+  padding-bottom:20px;
+}
+
+div#preferencesPageIcon
+{
+  margin:20px;
+  text-align: center;
+}
+
+div#preferencesPageIcon>img
+{
+  width:60px;
+  height:60px;
+}
+
+table#preferencesTable
+{
+  margin-right:auto; 
+  margin-left:auto;
+}
+
+table#preferencesTable, td
+{
+  padding:5px;
+}
+
+input#timeValue
+{
+  width:70px;
+  text-align:right;
+}
+
+p.lastUpdated
+{
+  text-align:center;
+  font-size:11px;
+}
+
+p.lastUpdatedError
+{
+  text-align:center;
+  font-size:10px;
+  color:red;
+}
+
+div#searchDiv
+{
+  background:rgba(128,0,0,1); 
+  position:absolute; 
+  width:100%; 
+  top:-36px; 
+  opacity:0; 
+  -webkit-transition:top 0.25s ease-out, opacity 0.25s ease-out;
+}
+
+.icon-cog 
+{
+  position:absolute; 
+  right:2px; 
+  top:14px;
+}
+.icon-search
+{
+  position:absolute; 
+  left:2px; 
+  top:14px;
+}
+
+#removeTopBar
+{
+  float:left; 
+  margin-left:2px; 
+  margin-top:12px; 
+  margin-right:2px;
+}
+
+#removeBottomBar
+{
+  float:right;
+  margin-right:4px; 
+  margin-left:3px;
+  margin-top:10px;
+}
+
+#searchForm
+{
+  left:22px; 
+  top:4px; 
+  margin-top:4px; 
+  margin-bottom:4px; 
+  margin-left:2px; 
+  margin-right:2px;
+}
+
+.icon-info-sign
+{
+  float:right; 
+  margin-left:3px;
+  margin-top:10px;
+  margin-right:3px;
+}
+
+.icon-wrench
+{
+  float:right; 
+  margin-left:3px;
+  margin-top:10px;
+  margin-right:3px;
+}
+
+#infoPanel
+{
+  opacity:0;
+  position:absolute; 
+  top:42px; 
+  width:309px; 
+  height:auto; 
+  overflow-y:auto; 
+  left:-362px;
+  -webkit-transition:left 0.25s ease-out, opacity 0.25s ease-out;
+}
+
+#alertBox
+{
+  pointer-events:none; 
+  opacity:0; 
+  position:absolute; 
+  top:42px; 
+  width:309px; 
+  height:auto; 
+  overflow-y:auto; 
+  -webkit-transition:left 0.25s ease-out, opacity 0.25s ease-out; 
+  text-align:center;
+}
+
+@-webkit-keyframes rotate 
+{
+    from 
+    {
+        -webkit-transform: rotate(0deg);
+    }
+    to 
+    { 
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+.icon-refresh-rotate 
+{
+    -webkit-animation-name: rotate; 
+    -webkit-animation-duration: 1.5s; 
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+}
+
+a
+{
+  color: rgb(128,0,0);
+}
+
+a:hover
+{
+  color: rgb(200,0,0);
+}
