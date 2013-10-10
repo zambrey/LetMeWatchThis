@@ -83,7 +83,7 @@ function handleXMLRequestResponse(request, responseText)
 			if(showsList[i].tagName == "A" || showsList[i].tagName == "a")
 			{
 				show = showsList[i];
-				title = show.getAttribute("title");
+				title = show.getAttribute("title").substring(6);
 				cover = show.firstChild.getAttribute("src");
 				link = show.getAttribute("href");
 				contentManager.addShow(new ShowObject(title, cover, link));	

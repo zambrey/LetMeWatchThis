@@ -97,10 +97,10 @@ function PopupRenderManager()
 		td = document.createElement('td');
 		cover = document.createElement('img');
 		cover.setAttribute('src', showCover);
-		cover.setAttribute('class','listMovieCover');
+		cover.setAttribute('class','showCover');
 		nameDiv = document.createElement('div');
 		nameDiv.innerHTML = showTitle;
-		nameDiv.setAttribute('class','movieNameDiv');
+		nameDiv.setAttribute('class','showName');
 		holderDiv.appendChild(cover);
 		holderDiv.appendChild(nameDiv);
 		td.appendChild(holderDiv);
