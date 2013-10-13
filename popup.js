@@ -5,6 +5,7 @@
  */
 var backgroundPage = chrome.extension.getBackgroundPage(),
 	popupRenderManager = null,
+	communicationManager = null,
 	popupInteractionManager = null;
 {
 	initiateManagers();
@@ -15,33 +16,7 @@ function initiateManagers()
 {
 	popupRenderManager = new PopupRenderManager();
 	popupInteractionManager = new PopupInteractionManager();
-}
-
-function sendMessage(msgType, languageName)
-{
-	var msgObject = new Object();
-	msgObject.messageType = msgType;
-	if(msgType == backgroundPage.CONSTANTS.RESET_NEW_FLAGS)
-	{
-		//msgObject.language = languageName;
-	}
-	chrome.extension.sendRequest(msgObject, function(response){
-		if(response.messageType == backgroundPage.CONSTANTS.NEW_FLAGS_RESET_DONE)
-		{
-			//popupRenderManager.removeLanguageControlBadge(languageName);
-		}
-		if(response.messageType == backgroundPage.CONSTANTS.IS_DATA_READY_RESPONSE)
-		{
-			if(response.status)
-			{
-				popupRenderManager.renderOnDataReady();
-			}
-			else
-			{
-				popupRenderManager.setTimeoutOnDataNotReady();
-			}
-		}
-	});
+	communicationManager = new CommunicationManager();
 }
 
 function PopupRenderManager()
@@ -69,22 +44,17 @@ function PopupRenderManager()
 	}
 	this.initRender = function()
 	{
-		sendMessage(backgroundPage.CONSTANTS.IS_DATA_READY_QUERY);
+		communicationManager.sendMessage(backgroundPage.CONSTANTS.IS_DATA_READY_QUERY);
 	}
-	this.renderDataSource = function(movieItemsSource)
+	this.renderDataSource = function()
 	{
-		var titleTable,
-			showObjects = popupRenderManager.dataSource;
+		var showObjects = popupRenderManager.dataSource;
 		popupRenderManager.listViewHolder.innerHTML = "";  //Removing all other names
 		for(i=0; i<showObjects.length; i++)
 		{
 			popupRenderManager.listViewHolder.appendChild(popupRenderManager.createShowListItem(showObjects[i].showTitle, showObjects[i].isNew, showObjects[i].showCover, showObjects[i].watchURL));
-		} 
-		if(backgroundPage.newShowsCnt>0)
-		{	
-			backgroundPage.cookieManager.setCookie(popupRenderManager.dataSource);
-			sendMessage(backgroundPage.CONSTANTS.RESET_NEW_FLAGS);
-		}	
+		}
+		communicationManager.sendMessage(backgroundPage.CONSTANTS.NEW_SHOWS_COUNT_QUERY); 
 	}
 	this.createShowListItem = function(showTitle, isNew, showCover, watchURL)
 	{
@@ -151,5 +121,36 @@ function PopupInteractionManager()
 		{
 			chrome.tabs.create({"url":url},function(){});
 		}
+	}
+}
+
+function CommunicationManager()
+{
+	this.sendMessage = function(msgType)
+	{
+		var msgObject = new Object();
+		msgObject.messageType = msgType;
+		chrome.extension.sendRequest(msgObject, function(response)
+		{
+			if(response.messageType == backgroundPage.CONSTANTS.IS_DATA_READY_RESPONSE)
+			{
+				if(response.status)
+				{
+					popupRenderManager.renderOnDataReady();
+				}
+				else
+				{
+					popupRenderManager.setTimeoutOnDataNotReady();
+				}
+			}
+			if(response.messageType == backgroundPage.CONSTANTS.NEW_SHOWS_COUNT_RESPONSE)
+			{
+				if(response.count > 0)
+				{
+					backgroundPage.cookieManager.setCookie(popupRenderManager.dataSource);
+					sendResponse({messageType:backgroundPage.CONSTANTS.RESET_NEW_FLAGS});
+				}
+			}
+		});
 	}
 }

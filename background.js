@@ -39,11 +39,13 @@ function constants()
 
 	//INTER-SCRIPT COMMUNICATION KEYS
 	this.RESET_NEW_FLAGS = "resetNewFlags";
-	this.INITIATE_AGAIN = "initiateAgain";
 	this.NEW_FLAGS_RESET_DONE = "newFlagsReset";
+	this.INITIATE_AGAIN = "initiateAgain";
 	this.INITIATED = "initiated";
 	this.IS_DATA_READY_QUERY = "isDataReadyQuery";
-	this.IS_DATA_READY_RESPONSE = "isDataReadyResponse"
+	this.IS_DATA_READY_RESPONSE = "isDataReadyResponse";
+	this.NEW_SHOWS_COUNT_QUERY = "newShowsCountQuery";
+	this.NEW_SHOWS_COUNT_RESPONSE = "newShowsCountResponse";
 }
 
 function initiate()
@@ -91,7 +93,14 @@ function CommunicationManager()
 		contentManager.areThereNewShows();
 		lastUpdated = new Date().getTime();
 		setBadge();
-		communicationManager.sendMessage(CONSTANTS.INITIATED);
+		try
+		{
+			communicationManager.sendMessage(CONSTANTS.INITIATED);	
+		}
+		catch(e)
+		{
+			console.log("No receiving port");
+		} 
 	}
 	this.getResponseHandler = function(req, responseHandler)
 	{
@@ -145,7 +154,7 @@ function CommunicationManager()
 		function(request, sender, sendResponse) {
 			if (request.messageType == CONSTANTS.RESET_NEW_FLAGS)
 			{
-				resetNewFlags();
+				contentManager.resetNewFlags();
 				sendResponse({messageType: CONSTANTS.NEW_FLAGS_RESET_DONE});
 			}
 			if(request.messageType == CONSTANTS.INITIATE_AGAIN)
@@ -163,6 +172,10 @@ function CommunicationManager()
 						initiate();
 					}	
 				}
+			}
+			if(request.messageType == CONSTANTS.NEW_SHOWS_COUNT_QUERY)
+			{
+				sendResponse({messageType: CONSTANTS.NEW_SHOWS_COUNT_RESPONSE, count:contentManager.newShowsCnt});
 			}	
 		}
 	);
@@ -301,24 +314,24 @@ function CookieManager()
 	}
 	this.processBeforeReturningCookie = function(cookieString)
 	{
-		var oldMovieTitles,oldMovies;
+		var oldShowTitles,oldShows;
 		if(cookieString)
 		{
-			oldMovieTitles = new Array()
-			oldMovies = cookieString.split('--');
-			for(i=0; i<oldMovies.length; i++)
+			oldShowTitles = new Array()
+			oldShows = cookieString.split('--');
+			for(i=0; i<oldShows.length; i++)
 			{
-				oldMovieTitles.push(oldMovies[i]);
+				oldShowTitles.push(oldShows[i]);
 			}
 		}
-		return oldMovieTitles;
+		return oldShowTitles;
 	}
 	this.processBeforeSettingCookie = function(cookieValue)
 	{
 		var cookieString = '';
 		for(i=0; i<cookieValue.length; i++)
 		{
-			cookieString = cookieString.concat(cookieValue[i].movieTitle);
+			cookieString = cookieString.concat(cookieValue[i].showTitle);
 			if(i<cookieValue.length-1)
 			{
 				cookieString = cookieString.concat('--');
@@ -342,7 +355,7 @@ function setBadge()
 	if(badgeNumber > 0)
 	{
 		chrome.browserAction.setBadgeText({"text":badgeNumber.toString()});//248,148,6
-		chrome.browserAction.setBadgeBackgroundColor({"color":[248,148,6,200]});	
+		chrome.browserAction.setBadgeBackgroundColor({"color":[248,248,6,200]});	
 	}
 	else
 	{
