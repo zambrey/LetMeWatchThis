@@ -27,5 +27,6 @@
     "permissions": ["tabs",
     "cookies",
     "storage", 
-    "http://www.primewire.ag/"]
+    "http://www.primewire.ag/",
+	"https://raw.github.com/"]
   }

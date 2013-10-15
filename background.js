@@ -31,6 +31,9 @@ function constants()
 	this.HOME_URL = "http://www.primewire.ag/";
 	this.QUERY_PATH = "?tv";
 
+	//GITHUB PRIMEWIRE JSON URL
+	this.JSON_FILE_URL = "https://raw.github.com/zambrey/LetMeWatchThis/master/primewireTV.json";
+
 	//PREFERENCE RELATED CONSTANTS
 	this.REFRESH_TIME_VAL_PREF = "refreshTimeValPref";
 	this.REFRESH_TIME_UNIT_PREF = "refreshTimeUnitPref";
@@ -52,6 +55,7 @@ function initiate()
 {
 	contentManager.isDataReady = false;
 	communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+CONSTANTS.QUERY_PATH, communicationManager.handleXMLRequestResponse);
+	communicationManager.sendXMLRequest(CONSTANTS.JSON_FILE_URL, communicationManager.handleJSONFileRequestResponse);
 	setTimeout(initiate, communicationManager.getRefreshInterval());
 }
 
@@ -86,6 +90,16 @@ function CommunicationManager()
 			
 		}
 		setTimeout(communicationManager.updateCompleted, 1000);
+	}
+	this.handleJSONFileRequestResponse = function(request, responseText)
+	{
+		var jsonToJSObj = JSON.parse(responseText);
+
+		for(var i=0; i<jsonToJSObj['TV Series'].length; i++)
+		{
+			tvShowObj = {value:jsonToJSObj['TV Series'][i].name, data:jsonToJSObj['TV Series'][i].id};
+			contentManager.primewireTVObj.push(tvShowObj);
+		}
 	}
 	this.updateCompleted = function()
 	{
@@ -185,6 +199,7 @@ function CommunicationManager()
 function ContentManager()
 {
 	this.shows = [];
+	this.primewireTVObj = [];
 	this.newShowsCnt = 0;
 	this.isDataReady = false;
 	this.resetShows = function()
@@ -202,6 +217,10 @@ function ContentManager()
 	this.setShows = function(shows)
 	{
 		this.shows = shows;
+	}
+	this.getPrimewireTVObj = function()
+	{
+		return this.primewireTVObj;
 	}
 	this.areThereNewShows = function()
 	{
