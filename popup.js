@@ -148,7 +148,7 @@ function CommunicationManager()
 				if(response.count > 0)
 				{
 					backgroundPage.cookieManager.setCookie(popupRenderManager.dataSource);
-					sendResponse({messageType:backgroundPage.CONSTANTS.RESET_NEW_FLAGS});
+					communicationManager.sendMessage(backgroundPage.CONSTANTS.RESET_NEW_FLAGS);
 				}
 			}
 		});
