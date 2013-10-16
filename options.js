@@ -10,13 +10,16 @@ var backgroundPage = chrome.extension.getBackgroundPage(),
 
 {
 	renderOptionsPage();
+
 	$("#timeValue").val(timeVal);
 	$("#selectedTimeUnit").html(timeUnit+" <span class=\"caret\"></span>");	
 	$(".lastUpdated").text(getLastUpdatedText());
+
 }
 
 function renderOnDataReady()
 {
+	fetchAutocompleteData();
 	setLastUpdatedText();
 	setInteraction();
 }
@@ -102,6 +105,24 @@ function convertMillisecondsToReadableForm(milli)
 		milli = Math.floor(milli/60);
 	}
 	return arr;
+}
+
+function fetchAutocompleteData()
+{
+	var availableTags = backgroundPage.contentManager.getPrimewireTVObj();
+	var selectedShows = [];
+
+	$("#tvShowList").typeahead({
+		source: availableTags,
+		items: 10,
+		minLength: 2,
+		updater: function(item) 
+		{
+			selectedShows.push(item);
+			alert(selectedShows);
+			return item;
+		}
+	});
 }
 
 function sendMessage(msgType)

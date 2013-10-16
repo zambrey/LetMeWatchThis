@@ -93,12 +93,15 @@ function CommunicationManager()
 	}
 	this.handleJSONFileRequestResponse = function(request, responseText)
 	{
-		var jsonToJSObj = JSON.parse(responseText);
+		if(contentManager.primewireTVObj.length == 0){
+			var jsonToJSObj = JSON.parse(responseText);
 
-		for(var i=0; i<jsonToJSObj['TV Series'].length; i++)
-		{
-			tvShowObj = {value:jsonToJSObj['TV Series'][i].name, data:jsonToJSObj['TV Series'][i].id};
-			contentManager.primewireTVObj.push(tvShowObj);
+			for(var i=0; i<jsonToJSObj['TV Series'].length; i++)
+			{
+				//tvShowObj = {value:jsonToJSObj['TV Series'][i].name, data:jsonToJSObj['TV Series'][i].id};
+				//contentManager.primewireTVObj.push(tvShowObj);
+				contentManager.primewireTVObj.push(jsonToJSObj['TV Series'][i].name);
+			}
 		}
 	}
 	this.updateCompleted = function()
