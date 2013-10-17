@@ -115,13 +115,7 @@ function fetchAutocompleteData()
 	$("#tvShowList").typeahead({
 		source: availableTags,
 		items: 10,
-		minLength: 2,
-		updater: function(item) 
-		{
-			selectedShows.push(item);
-			alert(selectedShows);
-			return item;
-		}
+		minLength: 2
 	});
 }
 

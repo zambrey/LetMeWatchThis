@@ -4,7 +4,7 @@
  * ameyazambre@gmail.com
  */ -->
  <!doctype html>
- <html>
+ <html ng-app="plunker" ng-csp>
  <head>
   <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="css/monitorStylesheet.css">
@@ -25,7 +25,11 @@
           <label class="control-label">TV Show notification preferences:</label>
         </td>
         <td>
-          <input id="tvShowList" type="text" placeholder="TV Show name" data-provide="typeahead" style = 'margin-left:20px;' autocomplete="off">
+          <div ng-controller="AlertDemoCtrl" style = 'margin-left:20px;'>
+            <input id="tvShowList" type="text" placeholder="TV Show name" data-provide="typeahead" style = 'margin-left:20px;' autocomplete="off" x-webkit-speech speech>
+            <button class='btn' ng-click="addAlert()" style = 'position:absolute'>Add TV Show</button>
+            <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)" style = 'margin-left:20px; margin-bottom:5px;'>{{alert.msg}}</alert>
+          </div>
         </td>
       </tr>
       <tr>
@@ -33,7 +37,7 @@
           <label class="control-label">Refresh Interval:</label>
         </td>
         <td>
-          <div class="input-append controls" style = 'margin-left:20px;'>
+          <div class="input-append controls" style = 'margin-left:40px;'>
             <input class="span2" id="timeValue" type="text">
             <div class="btn-group">
               <button id='selectedTimeUnit' class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
@@ -58,5 +62,8 @@
   <script src="js/jquery-2.0.3.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="options.js"></script>
+  <script src="js/angular.js"></script>
+  <script src="js/ui-bootstrap-tpls-0.6.0.js"></script>
+  <script src="js/tvshow-pref.js"></script>
 </footer>
 </html>
