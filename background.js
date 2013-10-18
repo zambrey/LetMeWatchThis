@@ -101,6 +101,7 @@ function CommunicationManager()
 				//tvShowObj = {value:jsonToJSObj['TV Series'][i].name, data:jsonToJSObj['TV Series'][i].id};
 				//contentManager.primewireTVObj.push(tvShowObj);
 				contentManager.primewireTVObj.push(jsonToJSObj['TV Series'][i].name);
+				contentManager.tvURLMap[jsonToJSObj['TV Series'][i].name] = jsonToJSObj['TV Series'][i].url;
 			}
 		}
 	}
@@ -195,6 +196,7 @@ function ContentManager()
 {
 	this.shows = [];
 	this.primewireTVObj = [];
+	this.tvURLMap = {};
 	this.newShowsCnt = 0;
 	this.isDataReady = false;
 	this.resetShows = function()
@@ -216,6 +218,10 @@ function ContentManager()
 	this.getPrimewireTVObj = function()
 	{
 		return this.primewireTVObj;
+	}
+	this.getTVUrlMap = function()
+	{
+		return this.tvURLMap;
 	}
 	this.areThereNewShows = function()
 	{
