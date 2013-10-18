@@ -1,8 +1,3 @@
-/*
- * Author
- * Ameya Zambre
- * ameyazambre@gmail.com
- */
 var backgroundPage = chrome.extension.getBackgroundPage(),
 	popupRenderManager = null,
 	communicationManager = null,
@@ -21,9 +16,13 @@ function initiateManagers()
 
 function PopupRenderManager()
 {
-	this.listViewHolder = document.getElementById('showList').childNodes[0];
+	this.listViewHolder = document.getElementById('showList');
 	this.dataSource = null;
 	this.numAttempts = 0;
+	this.initRender = function()
+	{
+		communicationManager.sendMessage(backgroundPage.CONSTANTS.IS_DATA_READY_QUERY);
+	}
 	this.renderOnDataReady = function()
 	{
 		popupRenderManager.hideProgressIndicator();
@@ -42,10 +41,6 @@ function PopupRenderManager()
 		else
 			popupRenderManager.showProgressFailure();
 	}
-	this.initRender = function()
-	{
-		communicationManager.sendMessage(backgroundPage.CONSTANTS.IS_DATA_READY_QUERY);
-	}
 	this.renderDataSource = function()
 	{
 		var showObjects = popupRenderManager.dataSource;
@@ -58,28 +53,44 @@ function PopupRenderManager()
 	}
 	this.createShowListItem = function(showTitle, isNew, showCover, watchURL)
 	{
-		var tr = document.createElement('tr');
+		var showDiv = document.createElement('div'),
+			clickHandler,
+			hoverInHandler,
+			hoverOutHandler,
+			cover,
+			nameDiv;
 		if(isNew)
 		{
-			tr.setAttribute('class','warning');
+			showDiv.style.border="1px solid rgb(248,248,6)";
 		}
-		var holderDiv = document.createElement('div');
-		td = document.createElement('td');
+		showDiv.setAttribute("class","showDiv");
 		cover = document.createElement('img');
 		cover.setAttribute('src', showCover);
 		cover.setAttribute('class','showCover');
 		nameDiv = document.createElement('div');
-		nameDiv.innerHTML = showTitle;
+		nameDiv.innerHTML = popupRenderManager.formatShowTitle(showTitle);
 		nameDiv.setAttribute('class','showName');
-		holderDiv.appendChild(cover);
-		holderDiv.appendChild(nameDiv);
-		td.appendChild(holderDiv);
-		td.style.minWidth = "355px";
-		tr.appendChild(td);
-		tr.style.cursor = 'pointer';
+		showDiv.appendChild(cover);
+		showDiv.appendChild(nameDiv);
 		clickHandler = popupInteractionManager.getShowRowClickHandler(backgroundPage.CONSTANTS.HOME_URL+watchURL);
-		tr.addEventListener('click',clickHandler);
-		return tr;
+		hoverInHandler = popupInteractionManager.getShowRowHoverInHandler();
+		hoverOutHandler = popupInteractionManager.getShowRowHoverOutInHandler();
+		showDiv.addEventListener('click',clickHandler);
+		showDiv.addEventListener('mouseover', hoverInHandler);
+		showDiv.addEventListener('mouseout', hoverOutHandler);
+		return showDiv;
+	}
+	this.formatShowTitle = function(showTitle)
+	{
+		var formattedTitle = "",
+			seasonIndex = showTitle.indexOf("Season"),
+			episodeIndex = showTitle.indexOf("Episode"),
+			title = showTitle.substring(0,seasonIndex),
+			season = showTitle.substring(seasonIndex, episodeIndex),
+			episode = showTitle.substring(episodeIndex);
+		formattedTitle = "<b>"+title+"</b><br>"+season+"<br>"+episode;
+		return formattedTitle;
+
 	}
 	this.hideProgressIndicator = function()
 	{
@@ -120,6 +131,20 @@ function PopupInteractionManager()
 		return function()
 		{
 			chrome.tabs.create({"url":url},function(){});
+		}
+	}
+	this.getShowRowHoverInHandler = function()
+	{
+		return function(e)
+		{
+			e.currentTarget.children[1].style.bottom = "0";
+		}
+	}
+	this.getShowRowHoverOutInHandler = function()
+	{
+		return function(e)
+		{
+			e.currentTarget.children[1].style.bottom = "-112px";
 		}
 	}
 }
