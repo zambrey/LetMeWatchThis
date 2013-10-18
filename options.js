@@ -53,7 +53,10 @@ function setInteraction()
 
    $(".icon-refresh").click(function(){
    		sendMessage(backgroundPage.CONSTANTS.INITIATE_AGAIN);
-   })
+   });
+
+   $("#notificationPrefHelp").tooltip();
+   $("#refreshIntervalHelp").tooltip();
 }
 
 function setLastUpdatedText()

@@ -8,36 +8,37 @@
  <head>
   <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="css/monitorStylesheet.css">
-  <title>Einthusan Monitor Preferences</title>
+  <title>LetMeWatchThis Preferences</title>
 </head>
 <body style="width:auto;">
   <div id='preferencesPageRootDiv'>
-    <div style="text-align:right;padding-right:5px;">
+    <!-- <div style="text-align:right;padding-right:5px;">
       <i class="icon-exclamation-sign"></i>
       <a href="https://chrome.google.com/webstore/support/khhfpiaglmihaifnfocggdmifdeigkhg" style="font-family:Open Sans, sans-serif; font-size:12px;" target="blank">Report Bug/Suggest Feature</a>
-    </div>
+    </div> -->
     <!-- <div id='preferencesPageIcon'>
       <img src='icon128.png'></img>
     </div> -->
     <table id="preferencesTable">
       <tr>
-        <td>
-          <label class="control-label">TV Show notification preferences:</label>
+        <td style="vertical-align:top;">
+          <label class="control-label" style="margin-top:5px;"><i id="notificationPrefHelp" class="icon-question-sign" style="margin-right:4px;" data-toggle="tooltip" data-original-title="List the shows for which you want to be notified. By default notifications are shown for all shows." data-placement="bottom" data-animation="true"></i>Notification Preferences:</label>
+
         </td>
         <td>
-          <div ng-controller="AlertDemoCtrl" style = 'margin-left:20px;'>
-            <input id="tvShowList" type="text" placeholder="TV Show name" data-provide="typeahead" style = 'margin-left:20px;' autocomplete="off" x-webkit-speech speech>
-            <button class='btn' ng-click="addAlert()" style = 'position:absolute'>Add TV Show</button>
-            <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)" style = 'margin-left:20px; margin-bottom:5px;'>{{alert.msg}}</alert>
+          <div ng-controller="AlertDemoCtrl">
+            <input id="tvShowList" type="text" placeholder="Start Typing Show Title..." data-provide="typeahead" autocomplete="off" x-webkit-speech speech>
+            <button class='btn btn-success' ng-click="addAlert()" style="margin-bottom:10px;"><i class="icon-plus icon-white"></i></button>
+            <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)" style = 'margin-bottom:5px;'>{{alert.msg}}</alert>
           </div>
         </td>
       </tr>
       <tr>
-        <td>
-          <label class="control-label">Refresh Interval:</label>
+        <td style="vertical-align:top;">
+          <label class="control-label" style="margin-top:5px;"><i id="refreshIntervalHelp" class="icon-question-sign" style="margin-right:4px;" data-toggle="tooltip" data-original-title="Set the time interval to refresh the shows data." data-placement="bottom" data-animation="true"></i>Refresh Interval:</label>
         </td>
         <td>
-          <div class="input-append controls" style = 'margin-left:40px;'>
+          <div class="input-append controls">
             <input class="span2" id="timeValue" type="text">
             <div class="btn-group">
               <button id='selectedTimeUnit' class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
@@ -48,7 +49,6 @@
               </ul>
             </div>
           </div>
-          <span class="help-inline">Refresh interval for the movies data</span>
         </td>
       </tr>
     </table>
