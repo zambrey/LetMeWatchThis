@@ -42,7 +42,7 @@ function constants()
 
 	//INTER-SCRIPT COMMUNICATION KEYS
 	this.RESET_NEW_FLAGS = "resetNewFlags";
-	this.NEW_FLAGS_RESET_DONE = "newFlagsReset";
+	//this.NEW_FLAGS_RESET_DONE = "newFlagsReset";
 	this.INITIATE_AGAIN = "initiateAgain";
 	this.INITIATED = "initiated";
 	this.IS_DATA_READY_QUERY = "isDataReadyQuery";
@@ -109,15 +109,7 @@ function CommunicationManager()
 		contentManager.isDataReady = true;
 		contentManager.areThereNewShows();
 		lastUpdated = new Date().getTime();
-		setBadge();
-		try
-		{
-			communicationManager.sendMessage(CONSTANTS.INITIATED);	
-		}
-		catch(e)
-		{
-			console.log("No receiving port");
-		} 
+		communicationManager.sendMessage(CONSTANTS.INITIATED);	 
 	}
 	this.getResponseHandler = function(req, responseHandler)
 	{
@@ -172,7 +164,7 @@ function CommunicationManager()
 			if (request.messageType == CONSTANTS.RESET_NEW_FLAGS)
 			{
 				contentManager.resetNewFlags();
-				sendResponse({messageType: CONSTANTS.NEW_FLAGS_RESET_DONE});
+				//sendResponse({messageType: CONSTANTS.NEW_FLAGS_RESET_DONE});
 			}
 			if(request.messageType == CONSTANTS.INITIATE_AGAIN)
 			{
@@ -232,6 +224,7 @@ function ContentManager()
 	this.compareAgainstCookie = function(showsCookie)
 	{
 		var showsArray = contentManager.getShows();
+		contentManager.newShowsCnt = 0;
 		if(!showsCookie)
 		{
 			contentManager.newShowsCnt += showsArray.length;
@@ -256,6 +249,7 @@ function ContentManager()
 				}
 			}	
 		}
+		setBadge();
 	}
 	this.resetNewFlags = function()
 	{
@@ -274,7 +268,6 @@ function PreferencesManager()
 {
 	this.REFRESH_TIME_VALUE_KEY = "refreshTimeVal";
 	this.REFRESH_TIME_UNIT_KEY = "refreshTimeUnit";
-	this.VIEW_STYLE_KEY = "viewStyle";
 	this.getPreferenceValue = function(preferenceType)
 	{	
 		return localStorage.getItem(this.getLocalStorageKeyForPreferenceType(preferenceType));
@@ -293,10 +286,6 @@ function PreferencesManager()
 		else if(preferenceType == CONSTANTS.REFRESH_TIME_UNIT_PREF)
 		{
 			prefKey = this.REFRESH_TIME_UNIT_KEY;
-		}
-		else if(preferenceType == CONSTANTS.VIEW_STYLE_PREF)
-		{
-			prefKey = this.VIEW_STYLE_KEY;
 		}
 		return prefKey;
 	}
