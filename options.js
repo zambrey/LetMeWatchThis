@@ -152,7 +152,7 @@ function AlertDemoCtrl($scope)
   $scope.alerts = [];
   var showPrefs = null,
       tempPrefs = [];
-  showPrefs = localStorage.getItem('tvShowPrefStore');
+  showPrefs = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF);
   tvShowMap = backgroundPage.contentManager.getTVUrlMap();
 
   if (!showPrefs) 
@@ -173,7 +173,7 @@ function AlertDemoCtrl($scope)
       $scope.alerts.push({msg: tvShowToAdd});
       var stringToStore = tvShowToAdd+'--';
       showPrefs = showPrefs.concat(stringToStore);
-      localStorage.setItem('tvShowPrefStore', showPrefs);
+      backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF, showPrefs);
     }
     $("#tvShowList").val("");
   };
@@ -184,7 +184,7 @@ function AlertDemoCtrl($scope)
     tempPrefs = showPrefs.split('--');
     tempPrefs.splice(index, 1);
     showPrefs = tempPrefs.join('--');
-    localStorage.setItem('tvShowPrefStore', showPrefs);
+    backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF, showPrefs);
   };
 }
 

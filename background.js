@@ -37,6 +37,7 @@ function constants()
 	//PREFERENCE RELATED CONSTANTS
 	this.REFRESH_TIME_VAL_PREF = "refreshTimeValPref";
 	this.REFRESH_TIME_UNIT_PREF = "refreshTimeUnitPref";
+	this.TV_SHOW_PREFS_PREF = "tvShowPrefsPref";
 	this.DEFAULT_REFRESH_TIME_VALUE = "3";
 	this.DEFAULT_REFRESH_TIME_UNIT = "Hours";
 
@@ -96,72 +97,11 @@ function CommunicationManager()
 	this.handleJSONFileRequestResponse = function(request, responseText)
 	{
 		if(contentManager.primewireTVObj.length == 0){
-			var jsonToJSObj = JSON.parse(responseText);
-
-			for(var i=0; i<jsonToJSObj['TV Series'].length; i++)
+			var jsObject = JSON.parse(responseText);
+			for(var i=0; i<jsObject['TV Series'].length; i++)
 			{
-				//tvShowObj = {value:jsonToJSObj['TV Series'][i].name, data:jsonToJSObj['TV Series'][i].id};
-				//contentManager.primewireTVObj.push(tvShowObj);
-				contentManager.primewireTVObj.push(jsonToJSObj['TV Series'][i].name);
-				contentManager.tvURLMap[jsonToJSObj['TV Series'][i].name] = jsonToJSObj['TV Series'][i].url;
-			}
-		}
-	}
-	this.createEpisodeListingObjFromName = function(tvShowName)
-	{
-		var tempURLMap = contentManager.getTVUrlMap();
-
-		if (!(tvShowName in tempURLMap))
-		{
-			return null;
-		}
-
-		tvShowURL = tempURLMap[tvShowName];
-
-		communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+tvShowURL, communicationManager.handleEpisodeRequestResponse);
-	}
-	this.handleEpisodeRequestResponse = function(request, responseText)
-	{
-		var doc = document.implementation.createHTMLDocument("episodes"), episodesParent, episodesList, subListOfEpisodes;
-		doc.documentElement.innerHTML = responseText;
-
-		episodesParent = doc.getElementById("first");
-		episodesList = episodesParent.getElementsByClassName("tv_container");
-
-		for(var i=0; i<episodesList.length; i++)
-		{
-			subListOfEpisodes = episodesList[i].children;
-			var pointerToSeason = "";
-
-			for(var j=0; j<subListOfEpisodes.length;j++)
-			{
-				var element = subListOfEpisodes[j];
-				
-				if(element.tagName == "H2")
-				{
-					pointerToSeason = element.textContent;
-					contentManager.episodeListingObj[pointerToSeason] = [];
-				}
-				else
-				{
-					fullEpisodeName = element.textContent;
-					fullEpisodeName = fullEpisodeName.replace(/\s+/g, ' ');
-					var patt = new RegExp('\\w+\\s[\\d]+');
-					episodeNumber = patt.exec(fullEpisodeName)[0];
-					patt = new RegExp('-[\\d\\D]*');
-					tempMatch = patt.exec(fullEpisodeName);
-					if(tempMatch != null)
-					{
-						episodeName = tempMatch[0];
-						episodeName = episodeName.trim().slice(2);
-					}
-					else
-					{
-						episodeName = "";
-					}
-					tempObject = {"episodeNumber":episodeNumber, "episodeName":episodeName};
-					contentManager.episodeListingObj[pointerToSeason].push(tempObject);
-				}
+				contentManager.primewireTVObj.push(jsObject['TV Series'][i].name);
+				contentManager.tvURLMap[jsObject['TV Series'][i].name] = jsObject['TV Series'][i].url;
 			}
 		}
 	}
@@ -260,7 +200,6 @@ function ContentManager()
 	this.tvURLMap = {};
 	this.newShowsCnt = 0;
 	this.isDataReady = false;
-	this.episodeListingObj = {};
 	this.resetShows = function()
 	{
 		this.shows = [];
@@ -285,17 +224,11 @@ function ContentManager()
 	{
 		return this.tvURLMap;
 	}
-	this.getUrlOfParticularShow = function(tvShowName)
+	this.getUrlForShow = function(tvShowName)
 	{
 		if(tvShowName in this.tvURLMap)
 			return this.tvURLMap[tvShowName];
 		return null;
-	}
-	this.getEpisodeListingObj = function(tvShowName)
-	{
-		communicationManager.createEpisodeListingObjFromName(tvShowName);
-
-		return this.episodeListingObj;
 	}
 	this.areThereNewShows = function()
 	{
@@ -348,6 +281,7 @@ function PreferencesManager()
 {
 	this.REFRESH_TIME_VALUE_KEY = "refreshTimeVal";
 	this.REFRESH_TIME_UNIT_KEY = "refreshTimeUnit";
+	this.TV_SHOW_PREFS_KEY = "tvShowPrefStore";
 	this.getPreferenceValue = function(preferenceType)
 	{	
 		return localStorage.getItem(this.getLocalStorageKeyForPreferenceType(preferenceType));
@@ -366,6 +300,10 @@ function PreferencesManager()
 		else if(preferenceType == CONSTANTS.REFRESH_TIME_UNIT_PREF)
 		{
 			prefKey = this.REFRESH_TIME_UNIT_KEY;
+		}
+		else if(preferenceType == CONSTANTS.TV_SHOW_PREFS_PREF)
+		{
+			prefKey = this.TV_SHOW_PREFS_KEY;
 		}
 		return prefKey;
 	}
