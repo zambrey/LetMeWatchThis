@@ -62,6 +62,7 @@ function initiate()
 /*Communication Manager*/
 function CommunicationManager()
 {
+	this.requests = [];
 	this.sendXMLRequest = function(url, responseHandler)
 	{
 		var request = new XMLHttpRequest();
@@ -69,6 +70,7 @@ function CommunicationManager()
 		request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
 		request.onreadystatechange = this.getResponseHandler(request, responseHandler);
 		request.send();
+		this.requests.push(request);
 	}
 	this.handleXMLRequestResponse = function(request, responseText)
 	{
@@ -121,11 +123,12 @@ function CommunicationManager()
 				if(responseHandler)
 				{
 					responseHandler(req, req.responseText);
+					communicationManager.requests.splice(communicationManager.requests.indexOf(req),1);
 				}
 			}
 			else if(req.status == 0 || req.status >= 400)
 			{
-				//requests.splice(requests.indexOf(req),1);
+				communicationManager.requests.splice(communicationManager.requests.indexOf(req),1);
 			}
 		}
 	}
@@ -174,7 +177,7 @@ function CommunicationManager()
 			if(request.messageType == CONSTANTS.IS_DATA_READY_QUERY)
 			{
 				sendResponse({messageType: CONSTANTS.IS_DATA_READY_RESPONSE, status: contentManager.isDataReady});
-				if(!contentManager.isDataReady && lastUpdated != -1 && requests.length == 0)
+				if(!contentManager.isDataReady && lastUpdated != -1 && communicationManager.requests.length == 0)
 				{
 					var diff = new Date().getTime() - lastUpdated;
 					if(diff >= communicationManager.getRefreshInterval())

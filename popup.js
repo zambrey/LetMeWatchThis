@@ -1,9 +1,16 @@
 var backgroundPage = chrome.extension.getBackgroundPage(),
 	popupRenderManager = null,
 	communicationManager = null,
-	popupInteractionManager = null;
+	popupInteractionManager = null,
+	searchManager = null;
 {
 	initiateManagers();
+	$(".icon-search").click(function()
+	{
+		$(".icon-search").toggleClass("icon-search-right");
+		$(".searchField").toggleClass("hiddenSearch");
+		$(".searchField").focus();
+	});
 	popupRenderManager.initRender()
 }
 

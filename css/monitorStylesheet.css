@@ -1,6 +1,6 @@
 body 
 {
-  min-width:505px;
+  min-width:464px;
   overflow: hidden;
   font-family: 'Open Sans', sans-serif;
 }
@@ -15,6 +15,41 @@ div#progressIndicatorDiv>div
   margin-left:103px; 
   margin-top:20px; 
   width:150px;
+}
+
+.icon-search
+{
+  position: absolute;
+  top: 8px;
+  left: 0px;
+  -webkit-transition: left ease-out 0.25s;
+}
+
+.icon-search-right
+{
+  left:446px !important;
+}
+
+.form-search
+{
+  position:absolute;
+  top: 0;
+  left: 0;
+}
+
+.searchField
+{
+  -webkit-transition:width ease-out 0.25s, opacity ease-out 0.25s !important;
+  width:450px;
+  opacity: 1;
+  pointer-events:all;
+}
+
+.hiddenSearch
+{
+  width:0px !important;
+  opacity: 0 !important;
+  pointer-events:none !important;
 }
 
 ::-webkit-scrollbar
@@ -43,25 +78,26 @@ div#progressIndicatorDiv>div
   overflow: hidden;
   margin:5px;
   float:left;
-  width:240px;
-  height:112px;
   border:1px solid gray;
 }
 
-.showCover
+.showCover,.showName,.showDiv
 {
-  width:250px;
+  width:220px;
+}
+
+.showDiv,.showName
+{
+  height: 103px;
 }
 
 .showName
 {
   position:absolute;
-  bottom:-112px;
+  bottom:-103px;
   background: rgba(255,255,255,0.7);
   color: rgb(0,0,0);
   font-size:14px;
-  width:250px;
-  height:112px;
   -webkit-transition:bottom ease-out 0.25s;
 }
 
