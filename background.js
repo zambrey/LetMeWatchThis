@@ -107,6 +107,64 @@ function CommunicationManager()
 			}
 		}
 	}
+	this.createEpisodeListingObjFromName = function(tvShowName)
+	{
+		var tempURLMap = contentManager.getTVUrlMap();
+
+		if (!(tvShowName in tempURLMap))
+		{
+			return null;
+		}
+
+		tvShowURL = tempURLMap[tvShowName];
+
+		communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+tvShowURL, communicationManager.handleEpisodeRequestResponse);
+	}
+	this.handleEpisodeRequestResponse = function(request, responseText)
+	{
+		var doc = document.implementation.createHTMLDocument("episodes"), episodesParent, episodesList, subListOfEpisodes;
+		doc.documentElement.innerHTML = responseText;
+
+		episodesParent = doc.getElementById("first");
+		episodesList = episodesParent.getElementsByClassName("tv_container");
+
+		for(var i=0; i<episodesList.length; i++)
+		{
+			subListOfEpisodes = episodesList[i].children;
+			var pointerToSeason = "";
+
+			for(var j=0; j<subListOfEpisodes.length;j++)
+			{
+				var element = subListOfEpisodes[j];
+				
+				if(element.tagName == "H2")
+				{
+					pointerToSeason = element.textContent;
+					contentManager.episodeListingObj[pointerToSeason] = [];
+				}
+				else
+				{
+					fullEpisodeName = element.textContent;
+					fullEpisodeName = fullEpisodeName.replace(/\s+/g, ' ');
+					var patt = new RegExp('\\w+\\s[\\d]+');
+					episodeNumber = patt.exec(fullEpisodeName)[0];
+					patt = new RegExp('-[\\d\\D]*');
+					tempMatch = patt.exec(fullEpisodeName);
+					if(tempMatch != null)
+					{
+						episodeName = tempMatch[0];
+						episodeName = episodeName.trim().slice(2);
+					}
+					else
+					{
+						episodeName = "";
+					}
+					tempObject = {"episodeNumber":episodeNumber, "episodeName":episodeName};
+					contentManager.episodeListingObj[pointerToSeason].push(tempObject);
+				}
+			}
+		}
+	}
 	this.updateCompleted = function()
 	{
 		contentManager.isDataReady = true;
@@ -202,6 +260,7 @@ function ContentManager()
 	this.tvURLMap = {};
 	this.newShowsCnt = 0;
 	this.isDataReady = false;
+	this.episodeListingObj = {};
 	this.resetShows = function()
 	{
 		this.shows = [];
@@ -225,6 +284,18 @@ function ContentManager()
 	this.getTVUrlMap = function()
 	{
 		return this.tvURLMap;
+	}
+	this.getUrlOfParticularShow = function(tvShowName)
+	{
+		if(tvShowName in this.tvURLMap)
+			return this.tvURLMap[tvShowName];
+		return null;
+	}
+	this.getEpisodeListingObj = function(tvShowName)
+	{
+		communicationManager.createEpisodeListingObjFromName(tvShowName);
+
+		return this.episodeListingObj;
 	}
 	this.areThereNewShows = function()
 	{
