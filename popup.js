@@ -191,7 +191,8 @@ function CommunicationManager()
 			{
 				if(response.count > 0)
 				{
-					backgroundPage.cookieManager.setCookie(popupRenderManager.dataSource);
+					//backgroundPage.cookieManager.setCookie(popupRenderManager.dataSource);
+					backgroundPage.localStorageManager.setLocalStorageValue(popupRenderManager.dataSource);
 					communicationManager.sendMessage(backgroundPage.CONSTANTS.RESET_NEW_FLAGS);
 				}
 			}

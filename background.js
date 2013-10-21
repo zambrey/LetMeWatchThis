@@ -7,6 +7,7 @@ var contentManager = null,
 	preferencesManager = null,
 	cookieManager = null,
 	communicationManager = null,
+	localStorageManager = null,
 	CONSTANTS = null,
 	lastUpdated = -1,
 	REFRESH_INTERVAL = 3*60*60*1000; //Three hour
@@ -22,6 +23,7 @@ function initiateManagers()
 	preferencesManager = new PreferencesManager();
 	cookieManager = new CookieManager();
 	communicationManager = new CommunicationManager();
+	localStorageManager = new LocalStorageManager();
 	CONSTANTS = new constants();
 }
 
@@ -33,6 +35,9 @@ function constants()
 
 	//GITHUB PRIMEWIRE JSON URL
 	this.JSON_FILE_URL = "https://raw.github.com/zambrey/LetMeWatchThis/master/primewireTV.json";
+
+	//LOCAL STORAGE_KEYS
+	this.LAST_SEEN_SHOWS_VALUE = "lastSeenShowValue";	//This is equivalent of shows cookie
 
 	//PREFERENCE RELATED CONSTANTS
 	this.REFRESH_TIME_VAL_PREF = "refreshTimeValPref";
@@ -55,6 +60,16 @@ function constants()
 function initiate()
 {
 	contentManager.isDataReady = false;
+	/*if(userPref)
+	{
+		for(i=0; i<userPref.length;i++)
+		{
+			sendXMLReq(userPref[i],detectIfNewEpisodeUploadedCallback);
+		}
+	}	
+	 else
+	 	communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+CONSTANTS.QUERY_PATH, communicationManager.handleXMLRequestResponse);
+	*/
 	communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+CONSTANTS.QUERY_PATH, communicationManager.handleXMLRequestResponse);
 	communicationManager.sendXMLRequest(CONSTANTS.JSON_FILE_URL, communicationManager.handleJSONFileRequestResponse);
 	setTimeout(initiate, communicationManager.getRefreshInterval());
@@ -73,6 +88,36 @@ function CommunicationManager()
 		request.send();
 		this.requests.push(request);
 	}
+	/*this.handleNewEpisodeDetectionResponse = function(request, responseText)
+	{
+		GET_COOKIE
+		FIND_LATEST_EPISODE_IN_RESPONSE_TEXT
+		Compare with episode number in cookie
+		if(latest_epi_response_text-latest_epi_in_cookie >1)
+		{
+			while(latest_epi_response_text-latest_epi_in_cookie >1)
+				Get episode before latest
+				latest_epi_response_text--;
+				ADD_TO_CONTENT_MANAGER
+				mark_as_new
+				Increment contentManager count of new shows
+				setbadge(badge will keep updating as and when request responses come in)
+		}
+		else
+		{
+			Add only the latest episode to content manager
+		}
+		Mark show update as complete(Assuming we have an array to keep track of shows from userPrefs getting updated)
+		If(all show updates are complete)
+			this.customUpdateCompleted();
+	}
+	this.customUpdateCompleted = function()
+	{
+		contentManager.isDataReady = true;
+		lastUpdated = new Date().getTime();
+		communicationManager.sendMessage(CONSTANTS.INITIATED);	 
+	}
+	*/
 	this.handleXMLRequestResponse = function(request, responseText)
 	{
 		contentManager.resetShows();
@@ -232,7 +277,8 @@ function ContentManager()
 	}
 	this.areThereNewShows = function()
 	{
-		cookieManager.getCookie(contentManager.compareAgainstCookie);
+		//cookieManager.getCookie(contentManager.compareAgainstCookie);
+		compareAgainstCookie(localStorageManager.getLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE));
 	}
 	this.compareAgainstCookie = function(showsCookie)
 	{
@@ -251,6 +297,11 @@ function ContentManager()
 			for(i=0; i<showsArray.length; i++)
 			{
 				var showTitle = showsArray[i].showTitle;
+				//First check if tvShowStorePref has some values
+				//If no values have been given, show notifications for all shows
+				//Find if showTitle is in tvShowPrefStore
+				//If present do the following code
+				//if not present skip the following code
 				if(showsCookie.indexOf(showTitle) < 0)
 				{
 					contentManager.newShowsCnt++;
@@ -306,6 +357,62 @@ function PreferencesManager()
 			prefKey = this.TV_SHOW_PREFS_KEY;
 		}
 		return prefKey;
+	}
+}
+
+function LocalStorageManager()
+{
+	this.lastSeenShowsKey = "pw-tv-shows";
+	this.getLocalStorageValue = function(valueType)
+	{
+		if(valueType == CONSTANTS.LAST_SEEN_SHOWS_VALUE)
+		{
+			return this.processBeforeReturningValue(localStorage.getItem(this.getKeyForValueType(valueType)));
+		}
+		return localStorage.getItem(this.getKeyForValueType(valueType));
+	}
+	this.setLocalStorageValue = function(valueType, value)
+	{
+		if(valueType == CONSTANTS.LAST_SEEN_SHOWS_VALUE)
+		{
+			localStorage.setItem(this.getKeyForValueType(valueType), this.processBeforeSettingValue(value));
+		}
+	}
+	this.getKeyForValueType = function(valueType)
+	{
+		var valKey = null;
+		if(valueType == CONSTANTS.LAST_SEEN_SHOWS_VALUE)
+		{
+			valKey = this.lastSeenShowsKey;
+		}
+		return valKey;
+	}
+	this.processBeforeReturningValue = function(valueString)
+	{
+		var oldShowTitles,oldShows;
+		if(valueString)
+		{
+			oldShowTitles = new Array()
+			oldShows = valueString.split('--');
+			for(i=0; i<oldShows.length; i++)
+			{
+				oldShowTitles.push(oldShows[i]);
+			}
+		}
+		return oldShowTitles;
+	}
+	this.processBeforeSettingValue = function(value)
+	{
+		var valueString = '';
+		for(i=0; i<value.length; i++)
+		{
+			valueString = valueString.concat(value[i].showTitle);
+			if(i<value.length-1)
+			{
+				valueString = valueString.concat('--');
+			}
+		}
+		return valueString;
 	}
 }
 
