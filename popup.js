@@ -27,6 +27,7 @@ function PopupRenderManager()
 	}
 	this.renderOnDataReady = function()
 	{
+		popupRenderManager.fetchAutocompleteData();
 		popupRenderManager.hideProgressIndicator();
 		if(!backgroundPage)
 		{
@@ -123,6 +124,16 @@ function PopupRenderManager()
 	this.dismissAlertBox = function()
 	{
 		$("#alertBox").css({'opacity':'0','pointer-events':'none'});
+	}
+	this.fetchAutocompleteData = function()
+	{
+		var availableTags = backgroundPage.contentManager.getPrimewireTVObj();
+
+		$("#tvShowListPopup").typeahead({
+			source: availableTags,
+			items: 10,
+			minLength: 2
+		});
 	}
 }
 

@@ -115,7 +115,6 @@ function convertMillisecondsToReadableForm(milli)
 function fetchAutocompleteData()
 {
 	var availableTags = backgroundPage.contentManager.getPrimewireTVObj();
-	var selectedShows = [];
 
 	$("#tvShowList").typeahead({
 		source: availableTags,
