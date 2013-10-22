@@ -11,7 +11,7 @@ var contentManager = null,
 	CONSTANTS = null,
 	lastUpdated = -1,
 	REFRESH_INTERVAL = 3*60*60*1000; //Three hour
-
+	allPrefsUpdated = 0;
 {
 	initiateManagers();
 	setTimeout(initiate,8000);
@@ -25,6 +25,7 @@ function initiateManagers()
 	communicationManager = new CommunicationManager();
 	localStorageManager = new LocalStorageManager();
 	CONSTANTS = new constants();
+	communicationManager.sendXMLRequest(CONSTANTS.JSON_FILE_URL, communicationManager.handleJSONFileRequestResponse);
 }
 
 function constants()
@@ -32,6 +33,7 @@ function constants()
 	//CONSTANT VALUES
 	this.HOME_URL = "http://www.primewire.ag/";
 	this.QUERY_PATH = "?tv";
+	this.IMAGES_URL = "http://images.primewire.ag/"
 
 	//GITHUB PRIMEWIRE JSON URL
 	this.JSON_FILE_URL = "https://raw.github.com/zambrey/LetMeWatchThis/master/primewireTV.json";
@@ -60,18 +62,25 @@ function constants()
 function initiate()
 {
 	contentManager.isDataReady = false;
-	/*if(userPref)
+	tempPrefs = preferencesManager.getPreferenceValue(CONSTANTS.TV_SHOW_PREFS_PREF);
+	if(tempPrefs == "")
+		showPrefs = null;
+	else
+		showPrefs = tempPrefs.split('--');
+
+	if(showPrefs)
 	{
-		for(i=0; i<userPref.length;i++)
+		for(var i=0; i<showPrefs.length-1;i++)
 		{
-			sendXMLReq(userPref[i],detectIfNewEpisodeUploadedCallback);
+			showPrefURL = contentManager.getUrlForShow(showPrefs[i]);
+			communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+showPrefURL, communicationManager.detectIfNewEpisodeUploaded);
 		}
 	}	
-	 else
+	else
 	 	communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+CONSTANTS.QUERY_PATH, communicationManager.handleXMLRequestResponse);
-	*/
-	communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+CONSTANTS.QUERY_PATH, communicationManager.handleXMLRequestResponse);
-	communicationManager.sendXMLRequest(CONSTANTS.JSON_FILE_URL, communicationManager.handleJSONFileRequestResponse);
+	
+	//communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+CONSTANTS.QUERY_PATH, communicationManager.handleXMLRequestResponse);
+	//communicationManager.sendXMLRequest(CONSTANTS.JSON_FILE_URL, communicationManager.handleJSONFileRequestResponse);
 	setTimeout(initiate, communicationManager.getRefreshInterval());
 }
 
@@ -88,12 +97,70 @@ function CommunicationManager()
 		request.send();
 		this.requests.push(request);
 	}
-	/*this.handleNewEpisodeDetectionResponse = function(request, responseText)
+	this.detectIfNewEpisodeUploaded = function(request, responseText)
 	{
-		GET_COOKIE
-		FIND_LATEST_EPISODE_IN_RESPONSE_TEXT
-		Compare with episode number in cookie
-		if(latest_epi_response_text-latest_epi_in_cookie >1)
+		//Get from local storage value
+		var lastSeenShows = localStorageManager.getLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE);
+		var areStoredShowsFromPref = contentManager.getShowsFromPrefFlag();
+		allPrefsUpdated += 1;
+
+		//If lastSeenShows contains shows from ticker, clean it up and get ready to store only shows from preferences.
+		if(!(areStoredShowsFromPref))
+		{
+			lastSeenShows = "";
+			contentManager.newShowsCnt = 0;
+		}
+
+		latestEpisodeFromResponseText = communicationManager.findLatestEpisodeInResponseText(responseText);
+		tvShowNameFromResponse = latestEpisodeFromResponseText[0];
+		latestSeasonFromResponseText = latestEpisodeFromResponseText[1];
+		latestEpisodeNumberFromResponseText = latestEpisodeFromResponseText[2];
+
+		if(!(lastSeenShows.length == 0))
+		{
+			var latestEpisodeFromStore = lastSeenShows.lastIndexOf(tvShowNameFromResponse);
+			if (latestEpisodeFromStore == -1)
+			{
+				//Add to shows
+				tempStringToStore = tvShowNameFromResponse+"%%"+latestSeasonFromResponseText+"%%"+latestEpisodeNumberFromResponseText+"--";
+				communicationManager.addPrefShowToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText);
+				lastSeenShows = lastSeenShows + tempStringToStore;
+			}
+			else
+			{
+				var endOfLatestEpisode = lastSeenShows.indexOf('--', latestEpisodeFromStore);
+				latestEpisodeFromStoreObj = lastSeenShows.splice(latestEpisodeFromStore, latestEpisodeFromStore-endOfLatestEpisode);
+
+				tempEpisodeObj = latestEpisodeFromStoreObj.split("%%");
+				latestEpisodeInPref = tempEpisodeObj[2];
+
+				for(var i=0; i<latestEpisodeNumberFromResponseText-latestEpisodeInPref; i++){
+					episodeToAdd = parseInt(latestEpisodeInPref)+i;
+					episodeToAdd = episodeToAdd.toString();
+					communicationManager.addPrefShowToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd);
+				}
+
+				tempStringToStore = tvShowNameFromResponse+"%%"+latestSeasonFromResponseText+"%%"+latestEpisodeNumberFromResponseText+"--";
+				lastSeenShows = lastSeenShows + tempStringToStore;
+			}
+		}
+		else
+		{
+			lastSeenShows = tvShowNameFromResponse+"%%"+latestSeasonFromResponseText+"%%"+latestEpisodeNumberFromResponseText+"--";
+			communicationManager.addPrefShowToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText);
+		}
+
+		localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, lastSeenShows);
+
+		tempPrefs = preferencesManager.getPreferenceValue(CONSTANTS.TV_SHOW_PREFS_PREF).split('--');
+		contentManager.setShowsFromPrefFlag(true);
+
+		if(allPrefsUpdated == tempPrefs.length-1)
+		{
+			communicationManager.customUpdateCompleted();
+		}
+
+		/*if(latest_epi_response_text-latest_epi_in_cookie >1)
 		{
 			while(latest_epi_response_text-latest_epi_in_cookie >1)
 				Get episode before latest
@@ -109,18 +176,76 @@ function CommunicationManager()
 		}
 		Mark show update as complete(Assuming we have an array to keep track of shows from userPrefs getting updated)
 		If(all show updates are complete)
-			this.customUpdateCompleted();
+			this.customUpdateCompleted();*/
+	}
+	this.addPrefShowToContent = function(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText)
+	{
+		var doc = document.implementation.createHTMLDocument("addPrefShow");
+		doc.documentElement.innerHTML = responseText;
+		
+		title = tvShowNameFromResponse+" Season "+latestSeasonFromResponseText+" Episode "+latestEpisodeNumberFromResponseText;
+		smallCover = doc.getElementsByClassName("movie_thumb")[0].firstChild.getAttribute("src");
+		firstPartCover = CONSTANTS.IMAGES_URL+"large_";
+		secondPartCover = smallCover.slice(CONSTANTS.IMAGES_URL.length);
+		cover = firstPartCover+secondPartCover;
+		spanLinkObj = doc.getElementsByClassName("titles")[1].firstChild;
+		linkElementObj = spanLinkObj.children[0];
+		linkToTVShow = linkElementObj.getAttribute("href");
+
+		//TODO  how to get url of page	
+		link = linkToTVShow+"/season-"+latestSeasonFromResponseText+"-episode-"+latestEpisodeNumberFromResponseText; 
+		tempShowObj = new ShowObject(title, cover, link);
+		tempShowObj.isNew = true;
+		contentManager.addShow(tempShowObj);
+		contentManager.newShowsCnt += 1;		
+	}
+	this.findLatestEpisodeInResponseText = function(responseText)
+	{
+		var doc = document.implementation.createHTMLDocument("latestShow");
+		doc.documentElement.innerHTML = responseText;
+		tvShowNameFromResponseElement = doc.getElementsByClassName("titles")[1];
+		tvShowNameFromResponse = tvShowNameFromResponseElement.textContent.trim();
+
+		episodesParent = doc.getElementById("first");
+		episodesList = episodesParent.getElementsByClassName("tv_container");
+
+		for(var i=0; i<episodesList.length; i++)
+		{
+			subListOfEpisodes = episodesList[i].children;
+			var pointerToSeason = "";
+
+			for(var j=0; j<subListOfEpisodes.length;j++)
+			{
+				var element = subListOfEpisodes[j];
+				
+				if(element.tagName == "H2")
+				{
+					pointerToSeason = element.textContent.slice(7);
+				}
+				else
+				{
+					fullEpisodeName = element.textContent;
+					var patt = new RegExp('\\w+\\s[\\d]+');
+					episodeNumber = patt.exec(fullEpisodeName)[0];
+					episodeNumber = episodeNumber.slice(8);
+				}
+			}
+		}
+
+		latestEpisodeObj = [tvShowNameFromResponse, pointerToSeason, episodeNumber];
+		return latestEpisodeObj;
 	}
 	this.customUpdateCompleted = function()
 	{
 		contentManager.isDataReady = true;
+		setBadge();
 		lastUpdated = new Date().getTime();
 		communicationManager.sendMessage(CONSTANTS.INITIATED);	 
 	}
-	*/
 	this.handleXMLRequestResponse = function(request, responseText)
 	{
 		contentManager.resetShows();
+		contentManager.setShowsFromPrefFlag(false);
 		var doc = document.implementation.createHTMLDocument("shows"), showsParent, showsList, show, showObject, title, cover, link;
 		doc.documentElement.innerHTML = responseText;
 		showsParent = doc.getElementById("slide-runner")
@@ -241,6 +366,7 @@ function CommunicationManager()
 function ContentManager()
 {
 	this.shows = [];
+	this.showsFromPrefFlag = false;
 	this.primewireTVObj = [];
 	this.tvURLMap = {};
 	this.newShowsCnt = 0;
@@ -261,6 +387,12 @@ function ContentManager()
 	{
 		this.shows = shows;
 	}
+	this.setShowsFromPrefFlag= function(isFromPref){
+		this.showsFromPrefFlag = isFromPref;
+	}
+	this.getShowsFromPrefFlag= function(){
+		return this.showsFromPrefFlag;
+	}
 	this.getPrimewireTVObj = function()
 	{
 		return this.primewireTVObj;
@@ -278,7 +410,7 @@ function ContentManager()
 	this.areThereNewShows = function()
 	{
 		//cookieManager.getCookie(contentManager.compareAgainstCookie);
-		compareAgainstCookie(localStorageManager.getLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE));
+		this.compareAgainstCookie(localStorageManager.getLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE));
 	}
 	this.compareAgainstCookie = function(showsCookie)
 	{
@@ -367,7 +499,11 @@ function LocalStorageManager()
 	{
 		if(valueType == CONSTANTS.LAST_SEEN_SHOWS_VALUE)
 		{
-			return this.processBeforeReturningValue(localStorage.getItem(this.getKeyForValueType(valueType)));
+			savedValue = localStorage.getItem(this.getKeyForValueType(valueType));
+			if(savedValue instanceof Array)
+				return this.processBeforeReturningValue(savedValue);
+			else
+				return savedValue;
 		}
 		return localStorage.getItem(this.getKeyForValueType(valueType));
 	}
@@ -375,7 +511,10 @@ function LocalStorageManager()
 	{
 		if(valueType == CONSTANTS.LAST_SEEN_SHOWS_VALUE)
 		{
-			localStorage.setItem(this.getKeyForValueType(valueType), this.processBeforeSettingValue(value));
+			if(value instanceof Array)
+				localStorage.setItem(this.getKeyForValueType(valueType), this.processBeforeSettingValue(value));
+			else
+				localStorage.setItem(this.getKeyForValueType(valueType), value);
 		}
 	}
 	this.getKeyForValueType = function(valueType)

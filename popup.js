@@ -192,7 +192,7 @@ function CommunicationManager()
 				if(response.count > 0)
 				{
 					//backgroundPage.cookieManager.setCookie(popupRenderManager.dataSource);
-					backgroundPage.localStorageManager.setLocalStorageValue(popupRenderManager.dataSource);
+					backgroundPage.localStorageManager.setLocalStorageValue(backgroundPage.CONSTANTS.LAST_SEEN_SHOWS_VALUE, popupRenderManager.dataSource);
 					communicationManager.sendMessage(backgroundPage.CONSTANTS.RESET_NEW_FLAGS);
 				}
 			}
