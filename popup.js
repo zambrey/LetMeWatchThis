@@ -50,11 +50,11 @@ function PopupRenderManager()
 		popupRenderManager.listViewHolder.innerHTML = "";  //Removing all other names
 		for(i=0; i<showObjects.length; i++)
 		{
-			popupRenderManager.listViewHolder.appendChild(popupRenderManager.createShowListItem(showObjects[i].showTitle, showObjects[i].isNew, showObjects[i].showCover, showObjects[i].watchURL));
+			popupRenderManager.listViewHolder.appendChild(popupRenderManager.createShowListItem(showObjects[i]));
 		}
 		communicationManager.sendMessage(backgroundPage.CONSTANTS.NEW_SHOWS_COUNT_QUERY); 
 	}
-	this.createShowListItem = function(showTitle, isNew, showCover, watchURL)
+	this.createShowListItem = function(showObject)
 	{
 		var showDiv = document.createElement('div'),
 			clickHandler,
@@ -62,20 +62,20 @@ function PopupRenderManager()
 			hoverOutHandler,
 			cover,
 			nameDiv;
-		if(isNew)
+		if(showObject.isNew)
 		{
 			showDiv.style.border="1px solid rgb(248,248,6)";
 		}
 		showDiv.setAttribute("class","showDiv");
 		cover = document.createElement('img');
-		cover.setAttribute('src', showCover);
+		cover.setAttribute('src', showObject.showCover);
 		cover.setAttribute('class','showCover');
 		nameDiv = document.createElement('div');
-		nameDiv.innerHTML = popupRenderManager.formatShowTitle(showTitle);
+		nameDiv.innerHTML = "<b>"+showObject.showTitle+"</b><br>Season: "+showObject.seasonNumber+"<br>Episode: "+showObject.episodeNumber;
 		nameDiv.setAttribute('class','showName');
 		showDiv.appendChild(cover);
 		showDiv.appendChild(nameDiv);
-		clickHandler = popupInteractionManager.getShowRowClickHandler(backgroundPage.CONSTANTS.HOME_URL+watchURL);
+		clickHandler = popupInteractionManager.getShowRowClickHandler(backgroundPage.CONSTANTS.HOME_URL+showObject.watchURL);
 		hoverInHandler = popupInteractionManager.getShowRowHoverInHandler();
 		hoverOutHandler = popupInteractionManager.getShowRowHoverOutInHandler();
 		showDiv.addEventListener('click',clickHandler);
@@ -83,7 +83,7 @@ function PopupRenderManager()
 		showDiv.addEventListener('mouseout', hoverOutHandler);
 		return showDiv;
 	}
-	this.formatShowTitle = function(showTitle)
+	/*this.formatShowTitle = function(showTitle)
 	{
 		var formattedTitle = "",
 			seasonIndex = showTitle.indexOf("Season"),
@@ -93,8 +93,7 @@ function PopupRenderManager()
 			episode = showTitle.substring(episodeIndex);
 		formattedTitle = "<b>"+title+"</b><br>"+season+"<br>"+episode;
 		return formattedTitle;
-
-	}
+	}*/
 	this.hideProgressIndicator = function()
 	{
 		var pi = document.getElementById('progressIndicatorDiv');

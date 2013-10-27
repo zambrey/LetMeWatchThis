@@ -1,8 +1,3 @@
-/*
- * Author
- * Ameya Zambre
- * ameyazambre@gmail.com
- */
 angular.module('plunker', ['ui.bootstrap']);
 
 var backgroundPage = chrome.extension.getBackgroundPage(),
@@ -12,6 +7,8 @@ var backgroundPage = chrome.extension.getBackgroundPage(),
 
 {
 	renderOptionsPage();
+	fetchAutocompleteData();
+	setInteraction();
 
 	$("#timeValue").val(timeVal);
 	$("#selectedTimeUnit").html(timeUnit+" <span class=\"caret\"></span>");	
@@ -21,9 +18,7 @@ var backgroundPage = chrome.extension.getBackgroundPage(),
 
 function renderOnDataReady()
 {
-	fetchAutocompleteData();
 	setLastUpdatedText();
-	setInteraction();
 }
 
 function setTimeoutOnDataNotReady()
@@ -45,12 +40,12 @@ function setInteraction()
     $(".dropdown-menu li a").click(function(){
 		$(this).parent().parent().prev().html($(this).text()+" <span class=\"caret\"></span>");
       	backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.REFRESH_TIME_UNIT_PREF, $(this).text());
-      	sendMessage(backgroundPage.CONSTANTS.INITIATE_AGAIN);
+      	//sendMessage(backgroundPage.CONSTANTS.INITIATE_AGAIN);
    });
 
    $("#timeValue").change(function(){
    		backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.REFRESH_TIME_VAL_PREF, $(this).val());
-   		sendMessage(backgroundPage.CONSTANTS.INITIATE_AGAIN);
+   		//sendMessage(backgroundPage.CONSTANTS.INITIATE_AGAIN);
    });
 
    $(".icon-refresh").click(function(){
@@ -72,10 +67,15 @@ function getLastUpdatedText()
 	var currentTime = new Date().getTime(),
 		readableTime,
 		diff = currentTime - backgroundPage.lastUpdated,
+		showsPref = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF),
 		hoursStr="",
 		minutesStr="",
 		secondsStr="",
 		hour, minute, second;
+	if(!showsPref || showsPref == "")
+	{
+		return "No preferences set to update data.";
+	}
 	if(backgroundPage.lastUpdated < 0)
 	{
 		return "Data will be updated soon.";
@@ -96,8 +96,11 @@ function getLastUpdatedText()
 
 function showError()
 {
-	$(".lastUpdated").text("Something went wrong.");
-	$(".lastUpdated").attr('class','lastUpdatedError');
+	if(showsPref && showsPref != "")
+	{
+		$(".lastUpdated").text("Something went wrong.");
+		$(".lastUpdated").attr('class','lastUpdatedError');	
+	}
 }
 
 function convertMillisecondsToReadableForm(milli)
@@ -123,13 +126,18 @@ function fetchAutocompleteData()
 	});
 }
 
-function sendMessage(msgType)
+function sendMessage(msgType, argument)
 {
 	var msgObject = new Object();
 	msgObject.messageType = msgType;
 	if(msgType == backgroundPage.CONSTANTS.INITIATE_AGAIN)
 	{
 		$(".icon-refresh").addClass('icon-refresh-rotate');
+	}
+	else if(msgType == backgroundPage.CONSTANTS.TV_SHOW_PREF_UPDATED)
+	{
+		msgObject.actionType = argument[0]; //ADD/REMOVE
+		msgObject.actionParam = argument[1]; //TV SHOW NAME
 	}
 	chrome.extension.sendRequest(msgObject, function(response){
 		if(response.messageType == backgroundPage.CONSTANTS.IS_DATA_READY_RESPONSE)
@@ -149,16 +157,18 @@ function sendMessage(msgType)
 function AlertDemoCtrl($scope) 
 {
   $scope.alerts = [];
-  var showPrefs = null,
-      tempPrefs = [];
-  showPrefs = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF);
-  tvShowMap = backgroundPage.contentManager.getTVUrlMap();
+  var showsPref = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF),
+  		tempPrefs = [],
+  		tvShowMap = backgroundPage.contentManager.getTVUrlMap();
 
-  if (!showPrefs) 
+  if (showsPref) 
   {
-    showPrefs = "";
+    tempPrefs = showsPref.split('--');
   }
-  tempPrefs = showPrefs.split('--');
+  else
+  {
+  	showsPref = "";
+  }
   for (var i=0; i<tempPrefs.length-1; i++)
   {
     $scope.alerts.push({msg: tempPrefs[i]});
@@ -166,24 +176,37 @@ function AlertDemoCtrl($scope)
 
   $scope.addAlert = function()
   {
-    var tvShowToAdd = document.getElementById("tvShowList").value;
-    if(tempPrefs.indexOf(tvShowToAdd) == -1 && (tvShowToAdd in tvShowMap))
+    var tvShowToAdd = document.getElementById("tvShowList").value,
+    	showsPref = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF);
+    if(!showsPref)
+    {
+    	showsPref = "";
+    }
+    if(showsPref.indexOf(tvShowToAdd) == -1 && (tvShowToAdd in tvShowMap))
     {
       $scope.alerts.push({msg: tvShowToAdd});
       var stringToStore = tvShowToAdd+'--';
-      showPrefs = showPrefs.concat(stringToStore);
-      backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF, showPrefs);
+      showsPref = showsPref.concat(stringToStore);
+      backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF, showsPref);
+      sendMessage(backgroundPage.CONSTANTS.TV_SHOW_PREF_UPDATED, ["ADD", tvShowToAdd]);
+    }
+    else
+    {
+    	console.log("Show has already been added or does not exist in the directory.");
     }
     $("#tvShowList").val("");
   };
 
   $scope.closeAlert = function(index) 
   {
+  	var tvShowToRemove = $scope.alerts[0].msg,
+  		showsPref = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF);
     $scope.alerts.splice(index, 1);
-    tempPrefs = showPrefs.split('--');
+    tempPrefs = showsPref.split('--');
     tempPrefs.splice(index, 1);
-    showPrefs = tempPrefs.join('--');
-    backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF, showPrefs);
+    showsPref = tempPrefs.join('--');
+    backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF, showsPref);
+    sendMessage(backgroundPage.CONSTANTS.TV_SHOW_PREF_UPDATED, ["REMOVE", tvShowToRemove]);
   };
 }
 
