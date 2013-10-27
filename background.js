@@ -62,6 +62,7 @@ function initiate()
 {
 	contentManager.isDataReady = false;
 	contentManager.resetShows();
+	allPrefsUpdated = 0;
 	var tempPrefs = preferencesManager.getPreferenceValue(CONSTANTS.TV_SHOW_PREFS_PREF);
 	if(!tempPrefs || tempPrefs == "")
 		showPrefs = null;
@@ -352,7 +353,7 @@ function CommunicationManager()
 								break;
 							}
 						}
-						localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, lastSeenList.join("--"));
+						localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, lastSeenList.join("--")+"--");
 						console.log(request.actionParam + " removed.");		
 					}
 				}
@@ -542,7 +543,7 @@ function LocalStorageManager()
 		for(i=0; i<value.length; i++)
 		{
 			valueString = valueString+value[i].showTitle+"%%"+value[i].seasonNumber+"%%"+value[i].episodeNumber;
-			if(i<value.length-1)
+			//if(i<value.length-1)
 			{
 				valueString = valueString.concat('--');
 			}
