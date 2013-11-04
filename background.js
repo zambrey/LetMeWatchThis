@@ -9,7 +9,13 @@ var contentManager = null,
 	allPrefsUpdated = 0;
 {
 	initiateManagers();
-	setTimeout(initiate,8000);
+
+	prefsOnStartup = preferencesManager.getPreferenceValue(CONSTANTS.TV_SHOW_PREFS_PREF);
+
+	if(prefsOnStartup.length != 0)
+		setTimeout(initiate,8000);
+	else
+		setTimeout(initiate,100);
 }
 
 function initiateManagers()
@@ -145,7 +151,7 @@ function CommunicationManager()
 			{
 				//Add to shows
 				var tempStringToStore = tvShowNameFromResponse+"%%"+latestSeasonFromResponseText+"%%"+latestEpisodeNumberFromResponseText+"--";
-				communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText);
+				communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, true);
 				lastSeenShows = lastSeenShows + tempStringToStore;
 			}
 			else
@@ -156,15 +162,22 @@ function CommunicationManager()
 				tempEpisodeObj = latestEpisodeFromStoreObj.split("%%");
 				latestEpisodeInPref = tempEpisodeObj[2];
 
-				for(var i=1; i<=latestEpisodeNumberFromResponseText-latestEpisodeInPref; i++)
+				var difference = parseInt(latestEpisodeNumberFromResponseText)-parseInt(latestEpisodeInPref);
+
+				for(var i=0; i<=difference; i++)
 				{
 					episodeToAdd = parseInt(latestEpisodeInPref)+i;
 					episodeToAdd = episodeToAdd.toString();
-					communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd);
+					if(i==0)
+						communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd, false);
+					else
+						communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd, true);
 				}
 
-				tempStringToStore = tvShowNameFromResponse+"%%"+latestSeasonFromResponseText+"%%"+latestEpisodeNumberFromResponseText+"--";
-				lastSeenShows = lastSeenShows + tempStringToStore;
+				if(difference>0) {
+					tempStringToStore = tvShowNameFromResponse+"%%"+latestSeasonFromResponseText+"%%"+latestEpisodeNumberFromResponseText+"--";
+					lastSeenShows = lastSeenShows + tempStringToStore;
+				}
 			}
 		}
 		else
@@ -173,7 +186,7 @@ function CommunicationManager()
 			communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText);
 		}
 
-		//localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, lastSeenShows);
+		localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, lastSeenShows);
 
 		tempPrefs = preferencesManager.getPreferenceValue(CONSTANTS.TV_SHOW_PREFS_PREF).split('--');
 		setBadge();
@@ -181,7 +194,7 @@ function CommunicationManager()
 	/* addEpisodeToContent
 	 * Builds link to episode's webpage and shows's cover and add the show object to content
 	 */
-	this.addEpisodeToContent = function(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText)
+	this.addEpisodeToContent = function(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, isNewEpisode)
 	{
 		var doc = document.implementation.createHTMLDocument("addPrefShow");
 		doc.documentElement.innerHTML = responseText;
@@ -193,7 +206,11 @@ function CommunicationManager()
 			linkToTVShow = linkElementObj.getAttribute("href");
 			link = linkToTVShow+"/season-"+latestSeasonFromResponseText+"-episode-"+latestEpisodeNumberFromResponseText,
 			tempShowObj = new ShowObject(tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, cover, link, true);
-		contentManager.addShow(tempShowObj);		
+		
+		if(isNewEpisode)
+			contentManager.addShow(tempShowObj, 1);
+		else
+			contentManager.addShow(tempShowObj, 0);	
 	}
 
 	/* findLatestEpisodeInResponseText
@@ -355,6 +372,8 @@ function CommunicationManager()
 						}
 						localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, lastSeenList.join("--")+"--");
 						console.log(request.actionParam + " removed.");		
+
+						setTimeout(initiate,100);
 					}
 				}
 			}	
@@ -374,7 +393,7 @@ function ContentManager()
 	{
 		this.shows = [];
 	}
-	this.addShow = function(show)
+	this.addShow = function(show, newShowAdd)
 	{
 		for(var i=0; i<this.shows.length; i++)
 		{
@@ -387,7 +406,7 @@ function ContentManager()
 			}
 		}
 		this.shows.push(show);
-		this.newShowsCnt += 1;
+		this.newShowsCnt += newShowAdd;
 	}
 	this.getShows = function()
 	{

@@ -199,7 +199,7 @@ function AlertDemoCtrl($scope)
 
   $scope.closeAlert = function(index) 
   {
-  	var tvShowToRemove = $scope.alerts[0].msg,
+  	var tvShowToRemove = $scope.alerts[index].msg,
   		showsPref = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF);
     $scope.alerts.splice(index, 1);
     tempPrefs = showsPref.split('--');
