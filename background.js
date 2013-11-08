@@ -149,10 +149,7 @@ function CommunicationManager()
 			var latestEpisodeFromStore = lastSeenShows.lastIndexOf(tvShowNameFromResponse);
 			if (latestEpisodeFromStore == -1)
 			{
-				//Add to shows
-				var tempStringToStore = tvShowNameFromResponse+"%%"+latestSeasonFromResponseText+"%%"+latestEpisodeNumberFromResponseText+"--";
 				communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, true);
-				lastSeenShows = lastSeenShows + tempStringToStore;
 			}
 			else
 			{
@@ -168,27 +165,15 @@ function CommunicationManager()
 				{
 					episodeToAdd = parseInt(latestEpisodeInPref)+i;
 					episodeToAdd = episodeToAdd.toString();
-					if(i==0)
-						communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd, false);
-					else
-						communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd, true);
-				}
-
-				if(difference>0) {
-					tempStringToStore = tvShowNameFromResponse+"%%"+latestSeasonFromResponseText+"%%"+latestEpisodeNumberFromResponseText+"--";
-					lastSeenShows = lastSeenShows + tempStringToStore;
+					communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd, !(i==0));
 				}
 			}
 		}
 		else
 		{
-			lastSeenShows = tvShowNameFromResponse+"%%"+latestSeasonFromResponseText+"%%"+latestEpisodeNumberFromResponseText+"--";
 			communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText);
 		}
 
-		localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, lastSeenShows);
-
-		tempPrefs = preferencesManager.getPreferenceValue(CONSTANTS.TV_SHOW_PREFS_PREF).split('--');
 		setBadge();
 	}
 	/* addEpisodeToContent
