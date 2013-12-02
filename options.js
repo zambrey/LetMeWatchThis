@@ -169,7 +169,7 @@ function AlertDemoCtrl($scope)
   {
   	showsPref = "";
   }
-  for (var i=0; i<tempPrefs.length-1; i++)
+  for (var i=0; i<tempPrefs.length; i++)
   {
     $scope.alerts.push({msg: tempPrefs[i]});
   }
@@ -180,14 +180,19 @@ function AlertDemoCtrl($scope)
     	showsPref = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF);
     if(!showsPref)
     {
-    	showsPref = "";
+    	showsPref = [];
+    }
+    else
+    {
+    	showsPref = showsPref.split("--");
     }
     if(showsPref.indexOf(tvShowToAdd) == -1 && (tvShowToAdd in tvShowMap))
     {
       $scope.alerts.push({msg: tvShowToAdd});
-      var stringToStore = tvShowToAdd+'--';
-      showsPref = showsPref.concat(stringToStore);
-      backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF, showsPref);
+      //var stringToStore = tvShowToAdd+'--';
+      //showsPref = showsPref.concat(stringToStore);
+      showsPref.push(tvShowToAdd);
+      backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF, showsPref.join("--"));
       sendMessage(backgroundPage.CONSTANTS.TV_SHOW_PREF_UPDATED, ["ADD", tvShowToAdd]);
     }
     else

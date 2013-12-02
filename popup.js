@@ -5,7 +5,7 @@ var backgroundPage = chrome.extension.getBackgroundPage(),
 	searchManager = null;
 {
 	initiateManagers();
-	popupRenderManager.initRender()
+	popupRenderManager.initRender();
 }
 
 function initiateManagers()
@@ -177,6 +177,7 @@ function CommunicationManager()
 		{
 			if(response.messageType == backgroundPage.CONSTANTS.IS_DATA_READY_RESPONSE)
 			{
+				console.log("IS_DATA_READY_RESPONSE: "+response);
 				if(response.status)
 				{
 					popupRenderManager.renderOnDataReady();

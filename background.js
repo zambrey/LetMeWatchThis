@@ -10,12 +10,7 @@ var contentManager = null,
 {
 	initiateManagers();
 
-	prefsOnStartup = preferencesManager.getPreferenceValue(CONSTANTS.TV_SHOW_PREFS_PREF);
-
-	if(prefsOnStartup.length != 0)
-		setTimeout(initiate,8000);
-	else
-		setTimeout(initiate,100);
+	setTimeout(initiate,4000);	//Need to put in a better check to see if tv sheos directory is ready.
 }
 
 function initiateManagers()
@@ -77,7 +72,7 @@ function initiate()
 
 	if(showPrefs)
 	{
-		for(var i=0; i<showPrefs.length-1;i++)
+		for(var i=0; i<showPrefs.length;i++)
 		{
 			showPrefURL = contentManager.getUrlForShow(showPrefs[i]);
 			communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+showPrefURL, CONSTANTS.BATCH_SHOWS_DATA_REQUEST, communicationManager.handleXMLRequestResponse);
@@ -129,8 +124,8 @@ function CommunicationManager()
 		allPrefsUpdated += 1;
 		
 		communicationManager.processIndividualShowForNewEpisodes(request, responseText);
-		
-		if(allPrefsUpdated == tempPrefs.length-1)
+		var tempPrefs = preferencesManager.getPreferenceValue(CONSTANTS.TV_SHOW_PREFS_PREF).split('--');
+		if(allPrefsUpdated == tempPrefs.length)
 		{
 			communicationManager.updateCompleted();
 		}
@@ -171,7 +166,7 @@ function CommunicationManager()
 		}
 		else
 		{
-			communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText);
+			communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, true);
 		}
 
 		setBadge();
@@ -316,6 +311,7 @@ function CommunicationManager()
 			}
 			if(request.messageType == CONSTANTS.IS_DATA_READY_QUERY)
 			{
+				console.log("IS_DATA_READY_QUERY");
 				sendResponse({messageType: CONSTANTS.IS_DATA_READY_RESPONSE, status: contentManager.isDataReady});
 				if(!contentManager.isDataReady && lastUpdated != -1 && communicationManager.requests.length == 0)
 				{
