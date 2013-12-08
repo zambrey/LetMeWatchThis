@@ -21,9 +21,11 @@ function PopupRenderManager()
 	this.listViewHolder = document.getElementById('showList');
 	this.dataSource = null;
 	this.numAttempts = 0;
+	this.dataSourceType = "";
 	this.initRender = function()
 	{
 		communicationManager.sendMessage(backgroundPage.CONSTANTS.IS_DATA_READY_QUERY);
+		popupRenderManager.dataSourceType = "latest";
 	}
 	this.renderOnDataReady = function()
 	{
@@ -46,13 +48,88 @@ function PopupRenderManager()
 	}
 	this.renderDataSource = function()
 	{
-		var showObjects = popupRenderManager.dataSource;
+		var showObjects = popupRenderManager.dataSource,
+			showPref = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF);
 		popupRenderManager.listViewHolder.innerHTML = "";  //Removing all other names
-		for(i=0; i<showObjects.length; i++)
+		if(popupRenderManager.dataSourceType == "latest")
 		{
-			popupRenderManager.listViewHolder.appendChild(popupRenderManager.createShowListItem(showObjects[i]));
+			if(showPref)
+			{
+				showPref = showPref.split("--");
+			}
+			for(var i=0; i<showPref.length; i++)
+			{
+				var div = document.createElement("div");
+				div.className = "show";
+				var statusIcon = document.createElement('i');
+				statusIcon.className = "icon-play statusIndicator";
+				var showTitle = document.createElement('div');
+				showTitle.className = "showTitle";
+				showTitle.innerText = showPref[i];
+				div.appendChild(statusIcon);
+				div.appendChild(showTitle);
+				div.onclick  = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
+				div.style.cursor = "default";
+				popupRenderManager.listViewHolder.appendChild(div);
+				var episodeContainer = document.createElement("div");
+				episodeContainer.className = "episodeContainer";
+				for(var j=0; j<showObjects.length; j++)
+				{
+					if(showPref[i].indexOf(showObjects[j].showTitle) >=0 ) //TODO: Need to change this
+					{
+						episodeContainer.appendChild(popupRenderManager.createShowListItem(showObjects[j]));
+					}
+					//popupRenderManager.listViewHolder.appendChild(popupRenderManager.createShowListItem(showObjects[i]));
+				}
+				popupRenderManager.listViewHolder.appendChild(episodeContainer);
+			}
+			communicationManager.sendMessage(backgroundPage.CONSTANTS.NEW_SHOWS_COUNT_QUERY); 
 		}
-		communicationManager.sendMessage(backgroundPage.CONSTANTS.NEW_SHOWS_COUNT_QUERY); 
+		else if(popupRenderManager.dataSourceType == "search")
+		{
+			popupRenderManager.listViewHolder.innerHTML = "";
+			var numSeasons = Object.keys(showObjects).length;
+			var div = document.createElement("div");
+			div.className = "show";
+			var statusIcon = document.createElement('i');
+			statusIcon.className = "icon-play statusIndicator";
+			var showTitle = document.createElement('div');
+			showTitle.className = "showTitle";
+			showTitle.innerText = searchManager.currentShowName;
+			div.appendChild(statusIcon);
+			div.appendChild(showTitle);
+			div.onclick  = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
+			div.style.cursor = "default";
+			popupRenderManager.listViewHolder.appendChild(div);
+			var seasonContainer = document.createElement("div");
+			seasonContainer.className = "seasonContainer";
+			for(var i=0; i<numSeasons; i++)
+			{
+				var seasonKey = "Season "+(i+1)
+				var episodeObjects = showObjects[seasonKey];
+
+				var season = document.createElement("div");
+				season.className = "season";
+				var seasonTitle = document.createElement('div');
+				seasonTitle.className = "seasonTitle";
+				seasonTitle.innerText = seasonKey;
+				var statusIcon = document.createElement('i');
+				statusIcon.className = "icon-play statusIndicator";
+				season.appendChild(statusIcon);
+				season.appendChild(seasonTitle);
+				season.onclick = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
+				seasonContainer.appendChild(season);
+				var episodeContainer = document.createElement("div");
+				episodeContainer.className = "episodeContainer";
+				for(var j=0; j<episodeObjects.length; j++)
+				{
+					episodeObjects[j].seasonNumber = i+1;
+					episodeContainer.appendChild(popupRenderManager.createShowListItem(episodeObjects[j]));
+				}
+				seasonContainer.appendChild(episodeContainer);	
+			}
+			popupRenderManager.listViewHolder.appendChild(seasonContainer);
+		}
 	}
 	this.createShowListItem = function(showObject)
 	{
@@ -62,7 +139,7 @@ function PopupRenderManager()
 			hoverOutHandler,
 			cover,
 			nameDiv;
-		if(showObject.isNew)
+		/*if(showObject.isNew)
 		{
 			showDiv.style.border="1px solid rgb(248,248,6)";
 		}
@@ -81,6 +158,11 @@ function PopupRenderManager()
 		showDiv.addEventListener('click',clickHandler);
 		showDiv.addEventListener('mouseover', hoverInHandler);
 		showDiv.addEventListener('mouseout', hoverOutHandler);
+		return showDiv;*/
+		showDiv.innerText = "Season "+showObject.seasonNumber + ", Episode " + showObject.episodeNumber;
+		showDiv.className = "episode";
+		clickHandler = popupInteractionManager.getShowRowClickHandler(backgroundPage.CONSTANTS.HOME_URL+showObject.watchURL);
+		showDiv.addEventListener('click',clickHandler);
 		return showDiv;
 	}
 	/*this.formatShowTitle = function(showTitle)
@@ -159,9 +241,19 @@ function PopupInteractionManager()
 			e.currentTarget.children[1].style.bottom = "-112px";
 		}
 	}
+	$("#searchBtn").click(function(e)
+	{
+		e.preventDefault();
+		var text = $("#tvShowListPopup").val();
+		if(text)
+		{
+			searchManager.searchEpisodeListingForShow(text);
+		}
+	});
 	$(".icon-search").click(function()
 	{
 		$(".icon-search").toggleClass("icon-search-right");
+		$(".form-search").toggleClass("hiddenSearch");
 		$(".searchField").toggleClass("hiddenSearch");
 		$(".searchField").focus();
 	});
@@ -252,7 +344,8 @@ function CommunicationManager()
 					fullEpisodeName = element.textContent;
 					fullEpisodeName = fullEpisodeName.replace(/\s+/g, ' ');
 					var patt = new RegExp('\\w+\\s[\\d]+');
-					episodeNumber = patt.exec(fullEpisodeName)[0];
+					episodeNumber = patt.exec(fullEpisodeName)[0].split(" ");
+					episodeNumber = episodeNumber[episodeNumber.length-1];
 					patt = new RegExp('-[\\d\\D]*');
 					tempMatch = patt.exec(fullEpisodeName);
 					if(tempMatch != null)
@@ -264,12 +357,15 @@ function CommunicationManager()
 					{
 						episodeName = "";
 					}
-					tempObject = {"episodeNumber":episodeNumber, "episodeName":episodeName};
+					var watchURL = element.children[0].getAttribute("href");
+					tempObject = {"episodeNumber":episodeNumber, "episodeName":episodeName, "watchURL":watchURL};
 					searchManager.currentEpisodeListing[pointerToSeason].push(tempObject);
 				}
 			}
 		}
 		/**This is where we call to render the search results**/
+		popupRenderManager.dataSource = searchManager.currentEpisodeListing;
+		popupRenderManager.renderDataSource();
 	}
 }
 
@@ -278,6 +374,7 @@ function SearchManager()
 	this.SEASON_KEY = "Season ";
 	this.currentShowName = null;
 	this.currentEpisodeListing = {};	//Populated in handleEpisodeRequestResponse
+
 	this.searchEpisodeListingForShow = function(tvShowName)
 	{
 		this.currentEpisodeListing = {};
@@ -286,6 +383,7 @@ function SearchManager()
 		{
 			communicationManager.sendXMLRequest(backgroundPage.CONSTANTS.HOME_URL+tvShowURL, communicationManager.handleEpisodeRequestResponse);
 			this.currentShowName = tvShowName;
+			popupRenderManager.dataSourceType = "search";
 		}
 		else
 		{

@@ -40,7 +40,7 @@ div#progressIndicatorDiv>div
 .searchField
 {
   -webkit-transition:width ease-out 0.25s, opacity ease-out 0.25s !important;
-  width:450px;
+  width:350px;
   opacity: 1;
   pointer-events:all;
 }
@@ -204,4 +204,50 @@ a
 a:hover
 {
   color: rgb(200,0,0);
+}
+
+
+.statusIndicator
+{
+  margin-right:5px;
+  float:left;
+  -webkit-transition:-webkit-transform 0.25s ease-out;
+}
+
+.statusIndicatorOpen
+{
+  -webkit-transform:rotate(90deg);
+}
+
+.show
+{
+  width:100%;
+  background:cyan;
+}
+
+.episodeContainer
+{
+  width:100%;
+  display:none;
+}
+
+.season
+{
+  width:100%;
+  margin-left:20px;
+  cursor:default; 
+  background:orange;
+}
+
+.seasonContainer
+{
+  width:100%;
+  display:none;
+}
+
+.episode
+{
+  width:100%;
+  margin-left:40px;
+  cursor:pointer;
 }
