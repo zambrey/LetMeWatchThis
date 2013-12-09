@@ -62,7 +62,8 @@ function PopupRenderManager()
 				var div = document.createElement("div");
 				div.className = "show";
 				var statusIcon = document.createElement('i');
-				statusIcon.className = "icon-play statusIndicator";
+				statusIcon.className = "icon-chevron-up icon-white statusIndicator";
+				statusIcon.style.marginTop = "11px";
 				var showTitle = document.createElement('div');
 				showTitle.className = "showTitle";
 				showTitle.innerText = showPref[i];
@@ -92,7 +93,8 @@ function PopupRenderManager()
 			var div = document.createElement("div");
 			div.className = "show";
 			var statusIcon = document.createElement('i');
-			statusIcon.className = "icon-play statusIndicator";
+			statusIcon.className = "icon-chevron-up icon-white statusIndicator";
+			statusIcon.style.marginTop = "11px";
 			var showTitle = document.createElement('div');
 			showTitle.className = "showTitle";
 			showTitle.innerText = searchManager.currentShowName;
@@ -103,18 +105,22 @@ function PopupRenderManager()
 			popupRenderManager.listViewHolder.appendChild(div);
 			var seasonContainer = document.createElement("div");
 			seasonContainer.className = "seasonContainer";
-			for(var i=0; i<numSeasons; i++)
+			for(var i=0; i<=numSeasons; i++)
 			{
-				var seasonKey = "Season "+(i+1)
+				var seasonKey = "Season "+(i)
 				var episodeObjects = showObjects[seasonKey];
-
+				if(!episodeObjects)
+				{
+					continue;
+				}
 				var season = document.createElement("div");
 				season.className = "season";
 				var seasonTitle = document.createElement('div');
 				seasonTitle.className = "seasonTitle";
 				seasonTitle.innerText = seasonKey;
 				var statusIcon = document.createElement('i');
-				statusIcon.className = "icon-play statusIndicator";
+				statusIcon.className = "icon-chevron-up icon-white statusIndicator";
+				statusIcon.style.marginTop = "11px";
 				season.appendChild(statusIcon);
 				season.appendChild(seasonTitle);
 				season.onclick = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
@@ -123,7 +129,7 @@ function PopupRenderManager()
 				episodeContainer.className = "episodeContainer";
 				for(var j=0; j<episodeObjects.length; j++)
 				{
-					episodeObjects[j].seasonNumber = i+1;
+					episodeObjects[j].seasonNumber = i;
 					episodeContainer.appendChild(popupRenderManager.createShowListItem(episodeObjects[j]));
 				}
 				seasonContainer.appendChild(episodeContainer);	
@@ -253,8 +259,8 @@ function PopupInteractionManager()
 	$(".icon-search").click(function()
 	{
 		$(".icon-search").toggleClass("icon-search-right");
-		$(".form-search").toggleClass("hiddenSearch");
-		$(".searchField").toggleClass("hiddenSearch");
+		//$(".form-search").toggleClass("hiddenSearch");
+		//$(".searchField").toggleClass("hiddenSearch");
 		$(".searchField").focus();
 	});
 }

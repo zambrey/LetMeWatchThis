@@ -96,7 +96,7 @@ function getLastUpdatedText()
 
 function showError()
 {
-	if(showsPref && showsPref != "")
+	//if(showsPref && showsPref != "")
 	{
 		$(".lastUpdated").text("Something went wrong.");
 		$(".lastUpdated").attr('class','lastUpdatedError');	

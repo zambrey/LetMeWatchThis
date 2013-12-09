@@ -17,93 +17,108 @@ div#progressIndicatorDiv>div
   width:150px;
 }
 
-.icon-search
-{
-  position: absolute;
-  top: 8px;
-  left: 0px;
-  -webkit-transition: left ease-out 0.25s;
-}
-
-.icon-search-right
-{
-  left:446px !important;
-}
-
 .form-search
 {
-  position:absolute;
-  top: 0;
-  left: 0;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 0px;
+  height: 36px;
+  background: #E78B77;
+  border-bottom: solid 1px #9B4635;
+  padding-top: 4px;
+}
+
+.form-search>ul
+{
+  text-align: left;
+  width: 84%;
 }
 
 .searchField
 {
-  -webkit-transition:width ease-out 0.25s, opacity ease-out 0.25s !important;
-  width:350px;
-  opacity: 1;
-  pointer-events:all;
+  width: 82%;
+  border-radius:0 !important; 
+  box-shadow: none !important;
+  border: solid 1px #9B4635 !important;
+  height: 36px;
 }
 
-.hiddenSearch
+#searchBtn
 {
-  width:0px !important;
-  opacity: 0 !important;
-  pointer-events:none !important;
+  border-radius:0 !important; 
+  box-shadow: none !important; 
+  border: none !important;
+  background: #9B4635 !important;
+  margin-left: -5px;
+  height: 30px;
+  width: 9%;
 }
 
-::-webkit-scrollbar
-{ 
-  width: 6px;
-
-}
-
-::-webkit-scrollbar-track
+.statusIndicator
 {
-  -webkit-box-shadow: inset 0 0 4px rgba(120,120,120,1); 
-  border-radius: 4px;
+  float:right;
+  margin-right:15px;
+  -webkit-transition:-webkit-transform 0.25s ease-out;
 }
 
-::-webkit-scrollbar-thumb
+.statusIndicatorOpen
 {
-  background: rgba(0,0,0,1); 
-  border-radius: 4px;
-  -webkit-box-shadow: inset 0 0 8px rgba(255,255,255,1); 
+  -webkit-transform:rotate(180deg);
 }
 
-.showDiv
+.showTitle
 {
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  margin:5px;
-  float:left;
-  border:1px solid gray;
+  margin-left:10px;
 }
 
-.showCover,.showName,.showDiv
+.seasonTitle
 {
-  width:220px;
+  margin-left:15px;
 }
 
-.showDiv,.showName
+.show
 {
-  height: 103px;
+  width:100%;
+  background: #E78B77;
+  height:36px;
+  line-height: 36px;
+  border-bottom: solid 1px #9B4635;
+  color:white;
 }
 
-.showName
+.season
 {
-  position:absolute;
-  bottom:-103px;
-  background: rgba(255,255,255,0.7);
-  color: rgb(0,0,0);
-  font-size:14px;
-  -webkit-transition:bottom ease-out 0.25s;
+  width:100%;
+  cursor:default; 
+  background:#DC5F47;
+  height:36px;
+  line-height: 36px;
+  border-bottom: solid 1px #9B4635;
+  color:white;
 }
 
-.holderDiv
+.episode
 {
-  position:relative;
+  width:100%;
+  padding-left:20px;
+  background:white;
+  cursor:pointer;
+  height:36px;
+  line-height: 36px;
+  border-bottom: solid 1px #9B4635;
+  color:#C04933;
+}
+
+.episodeContainer
+{
+  width:100%;
+  display:none;
+}
+
+.seasonContainer
+{
+  width:100%;
+  display:none;
 }
 
 /*Preferences Page*/
@@ -206,48 +221,20 @@ a:hover
   color: rgb(200,0,0);
 }
 
-
-.statusIndicator
-{
-  margin-right:5px;
-  float:left;
-  -webkit-transition:-webkit-transform 0.25s ease-out;
+::-webkit-scrollbar
+{ 
+  width: 6px;
 }
 
-.statusIndicatorOpen
+::-webkit-scrollbar-track
 {
-  -webkit-transform:rotate(90deg);
+  -webkit-box-shadow: inset 0 0 4px rgba(120,120,120,1); 
+  border-radius: 4px;
 }
 
-.show
+::-webkit-scrollbar-thumb
 {
-  width:100%;
-  background:cyan;
-}
-
-.episodeContainer
-{
-  width:100%;
-  display:none;
-}
-
-.season
-{
-  width:100%;
-  margin-left:20px;
-  cursor:default; 
-  background:orange;
-}
-
-.seasonContainer
-{
-  width:100%;
-  display:none;
-}
-
-.episode
-{
-  width:100%;
-  margin-left:40px;
-  cursor:pointer;
+  background: rgba(0,0,0,1); 
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 0 8px rgba(255,255,255,1); 
 }
