@@ -36,6 +36,7 @@ function PopupRenderManager()
 			backgroundPage = chrome.extension.getBackgroundPage();	
 		}
 		this.dataSource = backgroundPage.contentManager.getShows();
+		searchManager.showSearchForm();
 		setTimeout(popupRenderManager.renderDataSource,250);
 	}
 	this.setTimeoutOnDataNotReady = function()
@@ -63,11 +64,15 @@ function PopupRenderManager()
 				div.className = "show";
 				var statusIcon = document.createElement('i');
 				statusIcon.className = "icon-chevron-up icon-white statusIndicator";
-				statusIcon.style.marginTop = "11px";
+				statusIcon.style.marginTop = "28px";
 				var showTitle = document.createElement('div');
 				showTitle.className = "showTitle";
 				showTitle.innerText = showPref[i];
+				var showCover = document.createElement("img");
+				showCover.className = "showCover";
+				showCover.src = backgroundPage.contentManager.getImageForShow(showPref[i]);
 				div.appendChild(statusIcon);
+				div.appendChild(showCover);
 				div.appendChild(showTitle);
 				div.onclick  = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
 				div.style.cursor = "default";
@@ -94,11 +99,15 @@ function PopupRenderManager()
 			div.className = "show";
 			var statusIcon = document.createElement('i');
 			statusIcon.className = "icon-chevron-up icon-white statusIndicator";
-			statusIcon.style.marginTop = "11px";
+			statusIcon.style.marginTop = "28px";
 			var showTitle = document.createElement('div');
 			showTitle.className = "showTitle";
 			showTitle.innerText = searchManager.currentShowName;
+			var showCover = document.createElement("img");
+			showCover.className = "showCover";
+			showCover.src = backgroundPage.contentManager.getImageForShow(searchManager.currentShowName);
 			div.appendChild(statusIcon);
+			div.appendChild(showCover);
 			div.appendChild(showTitle);
 			div.onclick  = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
 			div.style.cursor = "default";
@@ -381,6 +390,10 @@ function SearchManager()
 	this.currentShowName = null;
 	this.currentEpisodeListing = {};	//Populated in handleEpisodeRequestResponse
 
+	this.showSearchForm = function()
+	{
+		$(".form-search").css({display:'block', opacity:'1.0'});
+	}
 	this.searchEpisodeListingForShow = function(tvShowName)
 	{
 		this.currentEpisodeListing = {};

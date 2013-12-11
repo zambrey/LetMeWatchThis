@@ -1,6 +1,6 @@
 body 
 {
-  min-width:464px;
+  min-width:350px;
   overflow: hidden;
   font-family: 'Open Sans', sans-serif;
 }
@@ -12,9 +12,11 @@ button
 /*Popup*/
 div#progressIndicatorDiv>div
 {
-  margin-left:103px; 
+  width: 60%;
+  margin-left:auto;
+  margin-right: auto; 
   margin-top:20px; 
-  width:150px;
+  min-width:150px;
 }
 
 .form-search
@@ -23,9 +25,13 @@ div#progressIndicatorDiv>div
   text-align: center;
   margin-bottom: 0px;
   height: 36px;
-  background: #E78B77;
+  /*background: #E78B77;*/
+  background: #E68044;
   border-bottom: solid 1px #9B4635;
   padding-top: 4px;
+  display: none;
+  opacity: 0.0;
+  -webkit-transition:opacity 0.25s ease-out;
 }
 
 .form-search>ul
@@ -71,6 +77,15 @@ div#progressIndicatorDiv>div
   margin-left:10px;
 }
 
+.showCover
+{
+  height:60px;
+  margin-top: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
+  float:left;
+}
+
 .seasonTitle
 {
   margin-left:15px;
@@ -79,9 +94,10 @@ div#progressIndicatorDiv>div
 .show
 {
   width:100%;
-  background: #E78B77;
-  height:36px;
-  line-height: 36px;
+  /*background: #E78B77;*/
+  background: #E68044;
+  height:70px;
+  line-height: 70px;
   border-bottom: solid 1px #9B4635;
   color:white;
 }
@@ -90,9 +106,10 @@ div#progressIndicatorDiv>div
 {
   width:100%;
   cursor:default; 
-  background:#DC5F47;
-  height:36px;
-  line-height: 36px;
+  /*background:#DC5F47;*/
+  background: #EA6146;
+  height:32px;
+  line-height: 32px;
   border-bottom: solid 1px #9B4635;
   color:white;
 }
@@ -103,10 +120,11 @@ div#progressIndicatorDiv>div
   padding-left:20px;
   background:white;
   cursor:pointer;
-  height:36px;
-  line-height: 36px;
+  height:28px;
+  line-height: 28px;
   border-bottom: solid 1px #9B4635;
-  color:#C04933;
+  /*color:#C04933;*/
+  color:#EE4348;
 }
 
 .episodeContainer
