@@ -59,10 +59,7 @@ for page_no in range(1, (lastPage+1)):
         #TVShowObject = { 'name':tvShowName, 'url':str(tvShowID), 'url_name':tvShowURLCode}
         TVShowObject = { 'name':tvShowName, 'url':str(link[1:]), 'image':tvShowImg}
 
-        if not tvShowID in idChecked:
-            data['TV Series'].append(TVShowObject)
-            idChecked.append(tvShowID)
-
+        data['TV Series'].append(TVShowObject)
 
 #Create JSON data dump
 data_string = json.dumps(data, indent=4, separators=(',', ': '))
