@@ -10,7 +10,7 @@ var contentManager = null,
 {
 	initiateManagers();
 
-	setTimeout(initiate,4000);	//Need to put in a better check to see if tv sheos directory is ready.
+	setTimeout(initiate,4000);	//Need to put in a better check to see if tv shows directory is ready.
 }
 
 function initiateManagers()
@@ -247,6 +247,7 @@ function CommunicationManager()
 			{
 				contentManager.primewireTVObj.push(jsObject['TV Series'][i].name);
 				contentManager.tvURLMap[jsObject['TV Series'][i].name] = jsObject['TV Series'][i].url;
+				contentManager.tvImageMap[jsObject['TV Series'][i].name] = jsObject['TV Series'][i].image;
 			}
 		}
 	}
@@ -368,6 +369,7 @@ function ContentManager()
 	this.shows = [];
 	this.primewireTVObj = [];
 	this.tvURLMap = {};
+	this.tvImageMap = {};
 	this.newShowsCnt = 0;
 	this.isDataReady = false;
 	this.resetShows = function()
@@ -405,10 +407,20 @@ function ContentManager()
 	{
 		return this.tvURLMap;
 	}
+	this.getTVImageMap = function()
+	{
+		return this.tvImageMap;
+	}
 	this.getUrlForShow = function(tvShowName)
 	{
 		if(tvShowName in this.tvURLMap)
 			return this.tvURLMap[tvShowName];
+		return null;
+	}
+	this.getImageForShow = function(tvShowName)
+	{
+		if(tvShowName in this.tvImageMap)
+			return this.tvImageMap[tvShowName];
 		return null;
 	}
 	this.compareAgainstCookie = function(showsCookie)
