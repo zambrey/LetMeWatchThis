@@ -185,7 +185,7 @@ function CommunicationManager()
 			linkElementObj = spanLinkObj.children[0],
 			linkToTVShow = linkElementObj.getAttribute("href");
 			link = linkToTVShow+"/season-"+latestSeasonFromResponseText+"-episode-"+latestEpisodeNumberFromResponseText,
-			tempShowObj = new ShowObject(tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, cover, link, true);
+			tempShowObj = new ShowObject(tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, cover, link, isNewEpisode);
 		
 		if(isNewEpisode)
 			contentManager.addShow(tempShowObj, 1);

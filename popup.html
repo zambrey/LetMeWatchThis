@@ -11,10 +11,17 @@
       <button id="dismissAlertBox" type="button" class="close" data-dismiss="alert">&times;</button>
       <h4 id="alertTextHolder"></h4>
     </div>
-    <form class="form-search">
+    <form class="form-search hiddenSearch">
       <input id="tvShowListPopup" class="searchField" type="text" placeholder="Type Show Title" data-provide="typeahead" autocomplete="off">
-      <button id="searchBtn" class=""><i class='icon-search icon-white' style="margin-top:3px;"></i></button>
+      <button id="searchBtn"><i class='icon-search icon-white' style="margin-top:3px;"></i></button>
+      <div id="removeSearch" class="toolbarItemHolder" style="float:right;"><i class='icon-remove icon-white toolbarItem'></i></div>
     </form>
+    <div class="topToolbar">
+      <div id="goBack" class="toolbarItemHolder" style="float:left; display:none;"><i class="icon-chevron-left icon-white toolbarItem"></i></div>
+      <div id="showSearch" class="toolbarItemHolder" style="float:left;"><i class="icon-search icon-white toolbarItem"></i></div>
+      <div id="showInfo" class="toolbarItemHolder" style="float:right;"><i class="icon-info-sign icon-white toolbarItem"></i></div>
+      <div id="openOptions" class="toolbarItemHolder" style="float:right;"><i class="icon-wrench icon-white toolbarItem"></i></div>
+    </div>
     <div id='showList'></div>
     <div id="progressIndicatorDiv" style='display:none;'> 
       <div class="progress progress-warning progress-striped active">

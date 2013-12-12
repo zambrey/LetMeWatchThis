@@ -36,7 +36,6 @@ function PopupRenderManager()
 			backgroundPage = chrome.extension.getBackgroundPage();	
 		}
 		this.dataSource = backgroundPage.contentManager.getShows();
-		searchManager.showSearchForm();
 		setTimeout(popupRenderManager.renderDataSource,250);
 	}
 	this.setTimeoutOnDataNotReady = function()
@@ -84,6 +83,10 @@ function PopupRenderManager()
 					if(showPref[i].indexOf(showObjects[j].showTitle) >=0 ) //TODO: Need to change this
 					{
 						episodeContainer.appendChild(popupRenderManager.createShowListItem(showObjects[j]));
+						if(showObjects[j].isNew)
+						{
+							popupRenderManager.listViewHolder.lastChild.className += " newArrival";
+						}
 					}
 					//popupRenderManager.listViewHolder.appendChild(popupRenderManager.createShowListItem(showObjects[i]));
 				}
@@ -144,6 +147,8 @@ function PopupRenderManager()
 				seasonContainer.appendChild(episodeContainer);	
 			}
 			popupRenderManager.listViewHolder.appendChild(seasonContainer);
+			$("#goBack").css('display','block');
+			$(".searchField").val("");
 		}
 	}
 	this.createShowListItem = function(showObject)
@@ -174,8 +179,13 @@ function PopupRenderManager()
 		showDiv.addEventListener('mouseover', hoverInHandler);
 		showDiv.addEventListener('mouseout', hoverOutHandler);
 		return showDiv;*/
-		showDiv.innerText = "Season "+showObject.seasonNumber + ", Episode " + showObject.episodeNumber;
+		//showDiv.innerText = "Season "+showObject.seasonNumber + ", Episode " + showObject.episodeNumber;
+		showDiv.innerText = showObject.episodeNumber +". "+showObject.episodeName;
 		showDiv.className = "episode";
+		if(showObject.isNew)
+		{
+			showDiv.className += " newArrival";
+		}
 		clickHandler = popupInteractionManager.getShowRowClickHandler(backgroundPage.CONSTANTS.HOME_URL+showObject.watchURL);
 		showDiv.addEventListener('click',clickHandler);
 		return showDiv;
@@ -265,12 +275,25 @@ function PopupInteractionManager()
 			searchManager.searchEpisodeListingForShow(text);
 		}
 	});
-	$(".icon-search").click(function()
+	$("#showSearch").click(function()
 	{
-		$(".icon-search").toggleClass("icon-search-right");
-		//$(".form-search").toggleClass("hiddenSearch");
-		//$(".searchField").toggleClass("hiddenSearch");
+		$(".form-search").toggleClass("hiddenSearch");
 		$(".searchField").focus();
+	});
+	$("#openOptions").click(function()
+	{
+		chrome.tabs.create({url:"options.html"});
+	});
+	$("#removeSearch").click(function()
+	{
+		$(".form-search").toggleClass("hiddenSearch");
+	});
+	$("#goBack").click(function()
+	{
+		popupRenderManager.dataSourceType = "latest";
+		popupRenderManager.dataSource = backgroundPage.contentManager.getShows();;
+		popupRenderManager.renderDataSource();
+		$("#goBack").css('display','none');
 	});
 }
 
@@ -381,6 +404,7 @@ function CommunicationManager()
 		/**This is where we call to render the search results**/
 		popupRenderManager.dataSource = searchManager.currentEpisodeListing;
 		popupRenderManager.renderDataSource();
+		$("#removeSearch").trigger("click");
 	}
 }
 
@@ -390,10 +414,6 @@ function SearchManager()
 	this.currentShowName = null;
 	this.currentEpisodeListing = {};	//Populated in handleEpisodeRequestResponse
 
-	this.showSearchForm = function()
-	{
-		$(".form-search").css({display:'block', opacity:'1.0'});
-	}
 	this.searchEpisodeListingForShow = function(tvShowName)
 	{
 		this.currentEpisodeListing = {};
