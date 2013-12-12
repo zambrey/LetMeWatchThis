@@ -138,13 +138,17 @@ function CommunicationManager()
 			tvShowNameFromResponse = latestEpisodeFromResponseText[0],
 			latestSeasonFromResponseText = latestEpisodeFromResponseText[1],
 			latestEpisodeNumberFromResponseText = latestEpisodeFromResponseText[2];
+			latestEpisodeNameFromResponseText = latestEpisodeFromResponseText[3];
+			lastSeasonEpisodeNames = latestEpisodeFromResponseText[4];
 
 		if(lastSeenShows && lastSeenShows.length != 0)
 		{
 			var latestEpisodeFromStore = lastSeenShows.lastIndexOf(tvShowNameFromResponse);
 			if (latestEpisodeFromStore == -1)
 			{
-				communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, true);
+				if(!latestEpisodeNameFromResponseText)
+					latestEpisodeNameFromResponseText = "Season "+latestSeasonFromResponseText+" Episode "+ latestEpisodeNumberFromResponseText;
+				communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, latestEpisodeNameFromResponseText, true);
 			}
 			else
 			{
@@ -160,7 +164,13 @@ function CommunicationManager()
 				{
 					episodeToAdd = parseInt(latestEpisodeInPref)+i;
 					episodeToAdd = episodeToAdd.toString();
-					communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd, !(i==0));
+
+					//Need to check if this works when i != 0
+					episodeNameToAdd = lastSeasonEpisodeNames[lastSeasonEpisodeNames.length-i-1];
+					if(!episodeNameToAdd)
+						episodeToAdd = "Season "+latestSeasonFromResponseText+" Episode "+ episodeToAdd;
+
+					communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd, episodeName, !(i==0));
 				}
 			}
 		}
@@ -174,18 +184,16 @@ function CommunicationManager()
 	/* addEpisodeToContent
 	 * Builds link to episode's webpage and shows's cover and add the show object to content
 	 */
-	this.addEpisodeToContent = function(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, isNewEpisode)
+	this.addEpisodeToContent = function(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, latestEpisodeNameFromResponseText, link, isNewEpisode)
 	{
 		var doc = document.implementation.createHTMLDocument("addPrefShow");
 		doc.documentElement.innerHTML = responseText;
 		
-		var smallCover = doc.getElementsByClassName("movie_thumb")[0].firstChild.getAttribute("src"),
-			cover = CONSTANTS.IMAGES_URL+"large_" + smallCover.slice(CONSTANTS.IMAGES_URL.length),
-			spanLinkObj = doc.getElementsByClassName("titles")[1].firstChild,
+		var spanLinkObj = doc.getElementsByClassName("titles")[1].firstChild,
 			linkElementObj = spanLinkObj.children[0],
 			linkToTVShow = linkElementObj.getAttribute("href");
 			link = linkToTVShow+"/season-"+latestSeasonFromResponseText+"-episode-"+latestEpisodeNumberFromResponseText,
-			tempShowObj = new ShowObject(tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, cover, link, isNewEpisode);
+			tempShowObj = new ShowObject(tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, latestEpisodeNameFromResponseText, link, isNewEpisode);
 		
 		if(isNewEpisode)
 			contentManager.addShow(tempShowObj, 1);
@@ -210,6 +218,7 @@ function CommunicationManager()
 		{
 			subListOfEpisodes = episodesList[i].children;
 			var seasonNumber = null;
+			var namesOfLastSeasonEpisodes = [];
 
 			for(var j=0; j<subListOfEpisodes.length;j++)
 			{
@@ -225,11 +234,23 @@ function CommunicationManager()
 					var patt = new RegExp('\\w+\\s[\\d]+');
 					episodeNumber = patt.exec(fullEpisodeName)[0];
 					episodeNumber = episodeNumber.slice(8);
+					patt = new RegExp('-[\\d\\D]*');
+					tempMatch = patt.exec(fullEpisodeName);
+					if(tempMatch != null)
+					{
+						episodeName = tempMatch[0];
+						episodeName = episodeName.trim().slice(2);
+					}
+					else
+					{
+						episodeName = "";
+					}
+					namesOfLastSeasonEpisodes.push(episodeName);
 				}
 			}
 		}
 
-		latestEpisodeObj = [tvShowNameFromResponse, seasonNumber, episodeNumber];
+		latestEpisodeObj = [tvShowNameFromResponse, seasonNumber, episodeNumber, episodeName, namesOfLastSeasonEpisodes];
 		return latestEpisodeObj;
 	}
 	this.updateCompleted = function()
@@ -564,12 +585,12 @@ function LocalStorageManager()
 	}
 }
 
-function ShowObject(title, season, episode, coverSrc, watchURL, isNew)
+function ShowObject(title, season, episodeNumber, episodeName, watchURL, isNew)
 {
 	this.showTitle = title;
 	this.seasonNumber = season;
-	this.episodeNumber = episode;
-	this.showCover = coverSrc;
+	this.episodeNumber = episodeNumber;
+	this.episodeName = episodeName;
 	this.watchURL = watchURL;
 	this.isNew = isNew;
 }

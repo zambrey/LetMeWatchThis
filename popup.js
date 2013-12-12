@@ -393,7 +393,7 @@ function CommunicationManager()
 					}
 					else
 					{
-						episodeName = "";
+						episodeName = pointerToSeason+" Episode "+episodeNumber;
 					}
 					var watchURL = element.children[0].getAttribute("href");
 					tempObject = {"episodeNumber":episodeNumber, "episodeName":episodeName, "watchURL":watchURL};
