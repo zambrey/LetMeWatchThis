@@ -9,6 +9,16 @@ button
   font-family: 'Open Sans', sans-serif;
 }
 
+.alert
+{
+  border-radius:0px !important;
+}
+
+.btn
+{
+  border-radius:0px !important;
+}
+
 /*Popup*/
 div#progressIndicatorDiv>div
 {
@@ -76,6 +86,13 @@ div#progressIndicatorDiv>div
 .toolbarItem
 {
   margin:8px;
+}
+
+.toolbarItemHolder:hover
+{
+  -webkit-animation-name: scale; 
+  -webkit-animation-duration: 0.25s; 
+  -webkit-animation-timing-function: ease-in;
 }
 
 .toolbarItemHolder
@@ -184,13 +201,13 @@ div#preferencesPageRootDiv
   margin-left: auto; 
   margin-right: auto; 
   width: 900px; 
-  border: 1px solid #666666; 
+  border: 1px solid #9B4635; 
   margin-top: 20px; 
   height: auto; 
-  box-shadow: 0px 4px 20px #666666; 
-  border-radius: 4px; 
-  background-color:rgba(200,200,200,0.1); 
+  background-color:rgba(230,128,68,1.0); 
   padding-bottom:20px;
+  padding-top: 20px;
+  color: white;
 }
 
 div#preferencesPageIcon
@@ -257,6 +274,18 @@ p.lastUpdatedError
     to 
     { 
         -webkit-transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes scale 
+{
+    from 
+    {
+        -webkit-transform: scale(1.0);
+    }
+    to 
+    { 
+        -webkit-transform: scale(1.2);
     }
 }
 

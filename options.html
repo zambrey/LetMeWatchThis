@@ -22,26 +22,26 @@
     <table id="preferencesTable">
       <tr>
         <td style="vertical-align:top;">
-          <label class="control-label" style="margin-top:5px;"><i id="notificationPrefHelp" class="icon-question-sign" style="margin-right:4px;" data-toggle="tooltip" data-original-title="List the shows for which you want to be notified. By default notifications are shown for all shows." data-placement="bottom" data-animation="true"></i>Notification Preferences:</label>
+          <label class="control-label" style="margin-top:5px;"><i id="notificationPrefHelp" class="icon-question-sign icon-white" style="margin-right:4px;" data-toggle="tooltip" data-original-title="List the shows for which you want to be notified. By default notifications are shown for all shows." data-placement="bottom" data-animation="true"></i>Notification Preferences:</label>
 
         </td>
         <td>
           <div ng-controller="AlertDemoCtrl">
-            <input id="tvShowList" type="text" placeholder="Start Typing Show Title..." data-provide="typeahead" autocomplete="off" x-webkit-speech speech>
-            <button class='btn btn-success' ng-click="addAlert()" style="margin-bottom:10px;"><i class="icon-plus icon-white"></i></button>
+            <input id="tvShowList" type="text" placeholder="Start Typing Show Title..." style="border-radius:0px;color:#9B4635;" data-provide="typeahead" autocomplete="off" x-webkit-speech speech>
+            <button class='btn' ng-click="addAlert()" style="background:#9B4635;border:border: solid 1px #9B4635; margin-bottom:10px;"><i class="icon-plus icon-white"></i></button>
             <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)" style = 'margin-bottom:5px;'>{{alert.msg}}</alert>
           </div>
         </td>
       </tr>
       <tr>
         <td style="vertical-align:top;">
-          <label class="control-label" style="margin-top:5px;"><i id="refreshIntervalHelp" class="icon-question-sign" style="margin-right:4px;" data-toggle="tooltip" data-original-title="Set the time interval to refresh the shows data." data-placement="bottom" data-animation="true"></i>Refresh Interval:</label>
+          <label class="control-label" style="margin-top:5px;"><i id="refreshIntervalHelp" class="icon-question-sign icon-white" style="margin-right:4px;" data-toggle="tooltip" data-original-title="Set the time interval to refresh the shows data." data-placement="bottom" data-animation="true"></i>Refresh Interval:</label>
         </td>
         <td>
           <div class="input-append controls">
-            <input class="span2" id="timeValue" type="text">
+            <input class="span2" id="timeValue" style="border-radius:0px;color:#9B4635;" type="text">
             <div class="btn-group">
-              <button id='selectedTimeUnit' class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+              <button id='selectedTimeUnit' class="btn dropdown-toggle" style="color:#9B4635;" data-toggle="dropdown"><span class="caret"></span></button>
               <ul class="dropdown-menu">
                 <li><a href="#">Hours</a></li>
                 <li><a href="#">Minutes</a></li>
@@ -53,7 +53,7 @@
       </tr>
     </table>
     <div style="text-align:center;">
-      <i class="icon-refresh" style=""></i>
+      <i class="icon-refresh icon-white" style=""></i>
       <p class="lastUpdated"></p>
     </div>
   </div>
