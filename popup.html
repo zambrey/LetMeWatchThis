@@ -7,10 +7,6 @@
     <title>LetMeWatchThis</title>
   </head>
   <body>
-    <div id="alertBox" class="alert alert-error">
-      <button id="dismissAlertBox" type="button" class="close" data-dismiss="alert">&times;</button>
-      <h4 id="alertTextHolder"></h4>
-    </div>
     <form class="form-search hiddenSearch">
       <input id="tvShowListPopup" class="searchField" type="text" placeholder="Type Show Title" data-provide="typeahead" autocomplete="off" tabindex="1">
       <button id="searchBtn" tabindex="2"><i class='icon-search icon-white' style="margin-top:1px;"></i></button>
@@ -22,9 +18,9 @@
       <div id="showInfo" class="toolbarItemHolder" style="float:right;"><i class="icon-info-sign icon-white toolbarItem"></i></div>
       <div id="openOptions" class="toolbarItemHolder" style="float:right;"><i class="icon-wrench icon-white toolbarItem"></i></div>
     </div>
-    <div class="contentHolder">
-      <div id='showList'></div>
-      <div id='searchResults'></div>
+    <div class="contentContainer">
+      <div id='latestArrivalsContainer'></div>
+      <div id='searchResultsContainer'></div>
     </div>
     <div id="infoPanel" class="alert alert-warning" style="">
       <b><a id="homepage" href="http://zambrey.github.io/LetMeWatchThis/">LetMeWatchThis</a></b> v1.0

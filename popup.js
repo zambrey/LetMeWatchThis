@@ -1,4 +1,5 @@
 var backgroundPage = chrome.extension.getBackgroundPage(),
+	constants = null,
 	popupRenderManager = null,
 	communicationManager = null,
 	popupInteractionManager = null,
@@ -10,51 +11,59 @@ var backgroundPage = chrome.extension.getBackgroundPage(),
 
 function initiateManagers()
 {
+	constants = new Constants();
 	popupRenderManager = new PopupRenderManager();
 	popupInteractionManager = new PopupInteractionManager();
 	communicationManager = new CommunicationManager();
 	searchManager = new SearchManager();
 }
 
+function Constants()
+{
+	this.latestArrivalsSrc = "latest";
+	this.searchResultsSrc = "search";
+}
+
 function PopupRenderManager()
 {
-	this.listViewHolder = document.getElementById("showList");
-	this.searchResultsHolder = document.getElementById("searchResults")
+	this.latestArrivalsContainer = document.getElementById("latestArrivalsContainer");
+	this.searchResultsContainer = document.getElementById("searchResultsContainer");
+	this.contentContainer = this.latestArrivalsContainer.parentNode;
 	this.dataSource = null;
 	this.numAttempts = 0;
 	this.dataSourceType = "";
 	this.initRender = function()
 	{
 		communicationManager.sendMessage(backgroundPage.CONSTANTS.IS_DATA_READY_QUERY);
-		popupRenderManager.dataSourceType = "latest";
 	}
 	this.renderOnDataReady = function()
 	{
 		popupRenderManager.fetchAutocompleteData();
-		popupRenderManager.hideProgressIndicator();
+		popupRenderManager.renderProgressIndicator(false);
 		if(!backgroundPage)
 		{
 			backgroundPage = chrome.extension.getBackgroundPage();	
 		}
-		this.dataSource = backgroundPage.contentManager.getShows();
-		setTimeout(popupRenderManager.renderDataSource,250);
+		popupRenderManager.renderDataSource(constants.latestArrivalsSrc);
 	}
 	this.setTimeoutOnDataNotReady = function()
 	{
-		popupRenderManager.showProgressIndicator();
+		popupRenderManager.renderProgressIndicator(true);
 		if(this.numAttempts++ < 15)
 			setTimeout(popupRenderManager.initRender, 1000);
 		else
 			popupRenderManager.showProgressFailure();
 	}
-	this.renderDataSource = function()
+	this.renderDataSource = function(srcType)
 	{
-		var showObjects = popupRenderManager.dataSource,
+		var showObjects = null,
 			showPref = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF);
-		popupRenderManager.listViewHolder.innerHTML = "";
-		popupRenderManager.searchResultsHolder.innerHTML = "";
-		if(popupRenderManager.dataSourceType == "latest")
+		popupRenderManager.latestArrivalsContainer.innerHTML = "";
+		popupRenderManager.searchResultsContainer.innerHTML = "";
+		popupRenderManager.dataSourceType = srcType;
+		if(srcType == constants.latestArrivalsSrc)
 		{
+			showObjects = backgroundPage.contentManager.getShows();
 			if(showPref)
 			{
 				showPref = showPref.split("--");
@@ -62,28 +71,29 @@ function PopupRenderManager()
 			for(var i=0; i<showPref.length; i++)
 			{
 				var div = popupRenderManager.createShowElement(showPref[i]);
-				popupRenderManager.listViewHolder.appendChild(div);
+				popupRenderManager.latestArrivalsContainer.appendChild(div);
 				var episodeContainer = document.createElement("div");
 				episodeContainer.className = "episodeContainer";
 				for(var j=0; j<showObjects.length; j++)
 				{
-					if(showPref[i].indexOf(showObjects[j].showTitle) >=0 ) //TODO: Need to change this
+					if(showPref[i].indexOf(showObjects[j].showTitle) >=0)
 					{
 						episodeContainer.appendChild(popupRenderManager.createEpisodeElement(showObjects[j]));
 						if(showObjects[j].isNew)
 						{
-							popupRenderManager.listViewHolder.lastChild.className += " newArrival";
+							popupRenderManager.latestArrivalsContainer.lastChild.className += " newArrival";
 						}
 					}
 				}
-				popupRenderManager.listViewHolder.appendChild(episodeContainer);
+				popupRenderManager.latestArrivalsContainer.appendChild(episodeContainer);
 			}
 			communicationManager.sendMessage(backgroundPage.CONSTANTS.NEW_SHOWS_COUNT_QUERY); 
 		}
-		else if(popupRenderManager.dataSourceType == "search")
+		else if(srcType == constants.searchResultsSrc)
 		{
+			showObjects = searchManager.currentEpisodeListing;
 			var numSeasons = Object.keys(showObjects).length;
-			popupRenderManager.searchResultsHolder.appendChild(popupRenderManager.createShowElement(searchManager.currentShowName));
+			popupRenderManager.searchResultsContainer.appendChild(popupRenderManager.createShowElement(searchManager.currentShowName));
 			var seasonContainer = document.createElement("div");
 			seasonContainer.className = "seasonContainer";
 			for(var i=0; i<=numSeasons; i++)
@@ -104,11 +114,9 @@ function PopupRenderManager()
 				}
 				seasonContainer.appendChild(episodeContainer);	
 			}
-			popupRenderManager.searchResultsHolder.appendChild(seasonContainer);
-			$("#goBack").removeClass("hiddengobackholder");
-			$(".searchField").val("");
-			popupRenderManager.searchResultsHolder.parentNode.style.left="-350px";
+			popupRenderManager.searchResultsContainer.appendChild(seasonContainer);
 		}
+		popupRenderManager.updateUI(srcType);
 	}
 	this.createShowElement = function(title)
 	{
@@ -148,32 +156,7 @@ function PopupRenderManager()
 	this.createEpisodeElement = function(showObject)
 	{
 		var showDiv = document.createElement('div'),
-			clickHandler,
-			hoverInHandler,
-			hoverOutHandler,
-			cover,
-			nameDiv;
-		/*if(showObject.isNew)
-		{
-			showDiv.style.border="1px solid rgb(248,248,6)";
-		}
-		showDiv.setAttribute("class","showDiv");
-		cover = document.createElement('img');
-		cover.setAttribute('src', showObject.showCover);
-		cover.setAttribute('class','showCover');
-		nameDiv = document.createElement('div');
-		nameDiv.innerHTML = "<b>"+showObject.showTitle+"</b><br>Season: "+showObject.seasonNumber+"<br>Episode: "+showObject.episodeNumber;
-		nameDiv.setAttribute('class','showName');
-		showDiv.appendChild(cover);
-		showDiv.appendChild(nameDiv);
-		clickHandler = popupInteractionManager.getShowRowClickHandler(backgroundPage.CONSTANTS.HOME_URL+showObject.watchURL);
-		hoverInHandler = popupInteractionManager.getShowRowHoverInHandler();
-		hoverOutHandler = popupInteractionManager.getShowRowHoverOutInHandler();
-		showDiv.addEventListener('click',clickHandler);
-		showDiv.addEventListener('mouseover', hoverInHandler);
-		showDiv.addEventListener('mouseout', hoverOutHandler);
-		return showDiv;*/
-		//showDiv.innerText = "Season "+showObject.seasonNumber + ", Episode " + showObject.episodeNumber;
+			clickHandler;
 		showDiv.innerText = "S"+showObject.seasonNumber+"E"+showObject.episodeNumber +" "+showObject.episodeName;
 		showDiv.className = "episode";
 		if(showObject.isNew)
@@ -184,35 +167,33 @@ function PopupRenderManager()
 		showDiv.addEventListener('click',clickHandler);
 		return showDiv;
 	}
-	this.hideProgressIndicator = function()
+	this.updateUI = function(srcType)
 	{
-		var pi = document.getElementById('progressIndicatorDiv');
-		if(pi)
+		if(srcType == constants.latestArrivalsSrc)
 		{
-			pi.style.display = 'none';	
+			popupRenderManager.contentContainer.style.left = "0px";
+			$("#goBack").addClass("hiddengobackholder");
+		}
+		else if(srcType == constants.searchResultsSrc)
+		{
+			$("#goBack").removeClass("hiddengobackholder");
+			$(".searchField").val("");
+			popupRenderManager.contentContainer.style.left="-350px";
+			$("#removeSearch").trigger("click");
 		}
 	}
-	this.showProgressIndicator = function()
+	this.renderProgressIndicator = function(visibile)
 	{
 		var pi = document.getElementById('progressIndicatorDiv');
 		if(pi)
 		{
-			pi.style.display = 'block';
+			pi.style.display = visibile?"block":"none";
 		}
 	}
 	this.showProgressFailure = function()
 	{
 		$("#progressIndicatorDiv").css('display','none');
 		$("#progressFail").css('display','block');
-	}
-	this.showAlertBox = function(message)
-	{
-		$("#alertTextHolder").text(message);
-		$("#alertBox").css({'opacity':'1','pointer-events':'all'});
-	}
-	this.dismissAlertBox = function()
-	{
-		$("#alertBox").css({'opacity':'0','pointer-events':'none'});
 	}
 	this.fetchAutocompleteData = function()
 	{
@@ -233,20 +214,6 @@ function PopupInteractionManager()
 		return function()
 		{
 			chrome.tabs.create({"url":url},function(){});
-		}
-	}
-	this.getShowRowHoverInHandler = function()
-	{
-		return function(e)
-		{
-			e.currentTarget.children[1].style.bottom = "0";
-		}
-	}
-	this.getShowRowHoverOutInHandler = function()
-	{
-		return function(e)
-		{
-			e.currentTarget.children[1].style.bottom = "-112px";
 		}
 	}
 	$("#searchBtn").click(function(e)
@@ -273,11 +240,7 @@ function PopupInteractionManager()
 	});
 	$("#goBack").click(function()
 	{
-		popupRenderManager.dataSourceType = "latest";
-		popupRenderManager.dataSource = backgroundPage.contentManager.getShows();;
-		popupRenderManager.renderDataSource();
-		popupRenderManager.listViewHolder.parentNode.style.left = "0px";
-		$("#goBack").addClass("hiddengobackholder");
+		popupRenderManager.renderDataSource(constants.latestArrivalsSrc);
 	});
 	$("#showInfo").click(function()
 	{
@@ -319,7 +282,6 @@ function CommunicationManager()
 			{
 				if(response.count > 0)
 				{
-					//backgroundPage.cookieManager.setCookie(popupRenderManager.dataSource);
 					backgroundPage.localStorageManager.setLocalStorageValue(backgroundPage.CONSTANTS.LAST_SEEN_SHOWS_VALUE, popupRenderManager.dataSource);
 					communicationManager.sendMessage(backgroundPage.CONSTANTS.RESET_NEW_FLAGS);
 				}
@@ -333,7 +295,6 @@ function CommunicationManager()
 		request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
 		request.onreadystatechange = this.getResponseHandler(request, responseHandler);
 		request.send();
-		//this.requests.push(request);
 	}
 	this.getResponseHandler = function(req, responseHandler)
 	{
@@ -399,10 +360,7 @@ function CommunicationManager()
 				}
 			}
 		}
-		/**This is where we call to render the search results**/
-		popupRenderManager.dataSource = searchManager.currentEpisodeListing;
-		popupRenderManager.renderDataSource();
-		$("#removeSearch").trigger("click");
+		popupRenderManager.renderDataSource(constants.searchResultsSrc);
 	}
 }
 
@@ -420,7 +378,6 @@ function SearchManager()
 		{
 			communicationManager.sendXMLRequest(backgroundPage.CONSTANTS.HOME_URL+tvShowURL, communicationManager.handleEpisodeRequestResponse);
 			this.currentShowName = tvShowName;
-			popupRenderManager.dataSourceType = "search";
 		}
 		else
 		{
