@@ -3,7 +3,7 @@
   <head>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/monitorStylesheet.css">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
     <title>LetMeWatchThis</title>
   </head>
   <body>
@@ -12,17 +12,28 @@
       <h4 id="alertTextHolder"></h4>
     </div>
     <form class="form-search hiddenSearch">
-      <input id="tvShowListPopup" class="searchField" type="text" placeholder="Type Show Title" data-provide="typeahead" autocomplete="off">
-      <button id="searchBtn"><i class='icon-search icon-white' style="margin-top:3px;"></i></button>
+      <input id="tvShowListPopup" class="searchField" type="text" placeholder="Type Show Title" data-provide="typeahead" autocomplete="off" tabindex="1">
+      <button id="searchBtn" tabindex="2"><i class='icon-search icon-white' style="margin-top:1px;"></i></button>
       <div id="removeSearch" class="toolbarItemHolder" style="float:right;"><i class='icon-remove icon-white toolbarItem'></i></div>
     </form>
     <div class="topToolbar">
-      <div id="goBack" class="toolbarItemHolder" style="float:left; display:none;"><i class="icon-chevron-left icon-white toolbarItem"></i></div>
+      <div id="goBack" class="toolbarItemHolder hiddengobackholder" style="float:left;"><i class="icon-chevron-left icon-white toolbarItem"></i></div>
       <div id="showSearch" class="toolbarItemHolder" style="float:left;"><i class="icon-search icon-white toolbarItem"></i></div>
       <div id="showInfo" class="toolbarItemHolder" style="float:right;"><i class="icon-info-sign icon-white toolbarItem"></i></div>
       <div id="openOptions" class="toolbarItemHolder" style="float:right;"><i class="icon-wrench icon-white toolbarItem"></i></div>
     </div>
-    <div id='showList'></div>
+    <div class="contentHolder">
+      <div id='showList'></div>
+      <div id='searchResults'></div>
+    </div>
+    <div id="infoPanel" class="alert alert-warning" style="">
+      <b><a id="homepage" href="http://zambrey.github.io/LetMeWatchThis/">LetMeWatchThis</a></b> v1.0
+      <h6>Updates</h6>
+      <ul>
+        <li>Bug fixes.</li>
+      </ul>
+      <h6><a id="feedback" href="https://chrome.google.com/webstore/detail/einthusan-monitor/khhfpiaglmihaifnfocggdmifdeigkhg/reviews?hl=en">Did you find Einthusan Monitor useful?</a></h6>
+    </div>
     <div id="progressIndicatorDiv" style='display:none;'> 
       <div class="progress progress-warning progress-striped active">
         <div class="bar" style="width:100%;"></div>

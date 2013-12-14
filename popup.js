@@ -18,7 +18,8 @@ function initiateManagers()
 
 function PopupRenderManager()
 {
-	this.listViewHolder = document.getElementById('showList');
+	this.listViewHolder = document.getElementById("showList");
+	this.searchResultsHolder = document.getElementById("searchResults")
 	this.dataSource = null;
 	this.numAttempts = 0;
 	this.dataSourceType = "";
@@ -50,7 +51,8 @@ function PopupRenderManager()
 	{
 		var showObjects = popupRenderManager.dataSource,
 			showPref = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF);
-		popupRenderManager.listViewHolder.innerHTML = "";  //Removing all other names
+		popupRenderManager.listViewHolder.innerHTML = "";
+		popupRenderManager.searchResultsHolder.innerHTML = "";
 		if(popupRenderManager.dataSourceType == "latest")
 		{
 			if(showPref)
@@ -59,22 +61,7 @@ function PopupRenderManager()
 			}
 			for(var i=0; i<showPref.length; i++)
 			{
-				var div = document.createElement("div");
-				div.className = "show";
-				var statusIcon = document.createElement('i');
-				statusIcon.className = "icon-chevron-up icon-white statusIndicator";
-				statusIcon.style.marginTop = "28px";
-				var showTitle = document.createElement('div');
-				showTitle.className = "showTitle";
-				showTitle.innerText = showPref[i];
-				var showCover = document.createElement("img");
-				showCover.className = "showCover";
-				showCover.src = backgroundPage.contentManager.getImageForShow(showPref[i]);
-				div.appendChild(statusIcon);
-				div.appendChild(showCover);
-				div.appendChild(showTitle);
-				div.onclick  = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
-				div.style.cursor = "default";
+				var div = popupRenderManager.createShowElement(showPref[i]);
 				popupRenderManager.listViewHolder.appendChild(div);
 				var episodeContainer = document.createElement("div");
 				episodeContainer.className = "episodeContainer";
@@ -82,13 +69,12 @@ function PopupRenderManager()
 				{
 					if(showPref[i].indexOf(showObjects[j].showTitle) >=0 ) //TODO: Need to change this
 					{
-						episodeContainer.appendChild(popupRenderManager.createShowListItem(showObjects[j]));
+						episodeContainer.appendChild(popupRenderManager.createEpisodeElement(showObjects[j]));
 						if(showObjects[j].isNew)
 						{
 							popupRenderManager.listViewHolder.lastChild.className += " newArrival";
 						}
 					}
-					//popupRenderManager.listViewHolder.appendChild(popupRenderManager.createShowListItem(showObjects[i]));
 				}
 				popupRenderManager.listViewHolder.appendChild(episodeContainer);
 			}
@@ -96,25 +82,8 @@ function PopupRenderManager()
 		}
 		else if(popupRenderManager.dataSourceType == "search")
 		{
-			popupRenderManager.listViewHolder.innerHTML = "";
 			var numSeasons = Object.keys(showObjects).length;
-			var div = document.createElement("div");
-			div.className = "show";
-			var statusIcon = document.createElement('i');
-			statusIcon.className = "icon-chevron-up icon-white statusIndicator";
-			statusIcon.style.marginTop = "28px";
-			var showTitle = document.createElement('div');
-			showTitle.className = "showTitle";
-			showTitle.innerText = searchManager.currentShowName;
-			var showCover = document.createElement("img");
-			showCover.className = "showCover";
-			showCover.src = backgroundPage.contentManager.getImageForShow(searchManager.currentShowName);
-			div.appendChild(statusIcon);
-			div.appendChild(showCover);
-			div.appendChild(showTitle);
-			div.onclick  = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
-			div.style.cursor = "default";
-			popupRenderManager.listViewHolder.appendChild(div);
+			popupRenderManager.searchResultsHolder.appendChild(popupRenderManager.createShowElement(searchManager.currentShowName));
 			var seasonContainer = document.createElement("div");
 			seasonContainer.className = "seasonContainer";
 			for(var i=0; i<=numSeasons; i++)
@@ -125,33 +94,58 @@ function PopupRenderManager()
 				{
 					continue;
 				}
-				var season = document.createElement("div");
-				season.className = "season";
-				var seasonTitle = document.createElement('div');
-				seasonTitle.className = "seasonTitle";
-				seasonTitle.innerText = seasonKey;
-				var statusIcon = document.createElement('i');
-				statusIcon.className = "icon-chevron-up icon-white statusIndicator";
-				statusIcon.style.marginTop = "11px";
-				season.appendChild(statusIcon);
-				season.appendChild(seasonTitle);
-				season.onclick = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
-				seasonContainer.appendChild(season);
+				seasonContainer.appendChild(popupRenderManager.createSeasonElement(seasonKey));
 				var episodeContainer = document.createElement("div");
 				episodeContainer.className = "episodeContainer";
 				for(var j=0; j<episodeObjects.length; j++)
 				{
 					episodeObjects[j].seasonNumber = i;
-					episodeContainer.appendChild(popupRenderManager.createShowListItem(episodeObjects[j]));
+					episodeContainer.appendChild(popupRenderManager.createEpisodeElement(episodeObjects[j]));
 				}
 				seasonContainer.appendChild(episodeContainer);	
 			}
-			popupRenderManager.listViewHolder.appendChild(seasonContainer);
-			$("#goBack").css('display','block');
+			popupRenderManager.searchResultsHolder.appendChild(seasonContainer);
+			$("#goBack").removeClass("hiddengobackholder");
 			$(".searchField").val("");
+			popupRenderManager.searchResultsHolder.parentNode.style.left="-350px";
 		}
 	}
-	this.createShowListItem = function(showObject)
+	this.createShowElement = function(title)
+	{
+		var div = document.createElement("div");
+		div.className = "show";
+		var statusIcon = document.createElement('i');
+		statusIcon.className = "icon-chevron-up icon-white statusIndicator";
+		statusIcon.style.marginTop = "28px";
+		var showTitle = document.createElement('div');
+		showTitle.className = "showTitle";
+		showTitle.innerText = title;
+		var showCover = document.createElement("img");
+		showCover.className = "showCover";
+		showCover.src = backgroundPage.contentManager.getImageForShow(title);
+		div.appendChild(statusIcon);
+		div.appendChild(showCover);
+		div.appendChild(showTitle);
+		div.onclick  = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
+		div.style.cursor = "default";
+		return div;
+	}
+	this.createSeasonElement = function(seasonKey)
+	{
+		var season = document.createElement("div");
+		season.className = "season";
+		var seasonTitle = document.createElement('div');
+		seasonTitle.className = "seasonTitle";
+		seasonTitle.innerText = seasonKey;
+		var statusIcon = document.createElement('i');
+		statusIcon.className = "icon-chevron-up icon-white statusIndicator";
+		statusIcon.style.marginTop = "11px";
+		season.appendChild(statusIcon);
+		season.appendChild(seasonTitle);
+		season.onclick = function(e){$(e.currentTarget).next().slideToggle(); $(e.currentTarget.firstChild).toggleClass("statusIndicatorOpen");};
+		return season;
+	}
+	this.createEpisodeElement = function(showObject)
 	{
 		var showDiv = document.createElement('div'),
 			clickHandler,
@@ -180,7 +174,7 @@ function PopupRenderManager()
 		showDiv.addEventListener('mouseout', hoverOutHandler);
 		return showDiv;*/
 		//showDiv.innerText = "Season "+showObject.seasonNumber + ", Episode " + showObject.episodeNumber;
-		showDiv.innerText = showObject.episodeNumber +". "+showObject.episodeName;
+		showDiv.innerText = "S"+showObject.seasonNumber+"E"+showObject.episodeNumber +" "+showObject.episodeName;
 		showDiv.className = "episode";
 		if(showObject.isNew)
 		{
@@ -190,17 +184,6 @@ function PopupRenderManager()
 		showDiv.addEventListener('click',clickHandler);
 		return showDiv;
 	}
-	/*this.formatShowTitle = function(showTitle)
-	{
-		var formattedTitle = "",
-			seasonIndex = showTitle.indexOf("Season"),
-			episodeIndex = showTitle.indexOf("Episode"),
-			title = showTitle.substring(0,seasonIndex),
-			season = showTitle.substring(seasonIndex, episodeIndex),
-			episode = showTitle.substring(episodeIndex);
-		formattedTitle = "<b>"+title+"</b><br>"+season+"<br>"+episode;
-		return formattedTitle;
-	}*/
 	this.hideProgressIndicator = function()
 	{
 		var pi = document.getElementById('progressIndicatorDiv');
@@ -293,7 +276,22 @@ function PopupInteractionManager()
 		popupRenderManager.dataSourceType = "latest";
 		popupRenderManager.dataSource = backgroundPage.contentManager.getShows();;
 		popupRenderManager.renderDataSource();
-		$("#goBack").css('display','none');
+		popupRenderManager.listViewHolder.parentNode.style.left = "0px";
+		$("#goBack").addClass("hiddengobackholder");
+	});
+	$("#showInfo").click(function()
+	{
+		$(".icon-info-sign").toggleClass('icon-white');
+		if($("#infoPanel").css('opacity') == '0')
+		{
+			$("#infoPanel").css('opacity','1');
+			$("#infoPanel").css('left','2px');	
+		}
+		else
+		{
+			$("#infoPanel").css('opacity','0');
+			$("#infoPanel").css('left','-350px');
+		}
 	});
 }
 

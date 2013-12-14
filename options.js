@@ -189,8 +189,6 @@ function AlertDemoCtrl($scope)
     if(showsPref.indexOf(tvShowToAdd) == -1 && (tvShowToAdd in tvShowMap))
     {
       $scope.alerts.push({msg: tvShowToAdd});
-      //var stringToStore = tvShowToAdd+'--';
-      //showsPref = showsPref.concat(stringToStore);
       showsPref.push(tvShowToAdd);
       backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF, showsPref.join("--"));
       sendMessage(backgroundPage.CONSTANTS.TV_SHOW_PREF_UPDATED, ["ADD", tvShowToAdd]);
@@ -200,6 +198,7 @@ function AlertDemoCtrl($scope)
     	console.log("Show has already been added or does not exist in the directory.");
     }
     $("#tvShowList").val("");
+    $("#tvShowList").focus();
   };
 
   $scope.closeAlert = function(index) 

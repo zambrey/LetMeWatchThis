@@ -1,12 +1,12 @@
 body 
 {
-  min-width:350px;
+  width:350px;
   overflow: hidden;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Droid Sans', sans-serif;
 }
 button
 {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Droid Sans', sans-serif;
 }
 
 .alert
@@ -20,6 +20,34 @@ button
 }
 
 /*Popup*/
+.contentHolder
+{
+  overflow:hidden;
+  width: 700px;
+  position: relative;
+  left:0;
+  top: 0;
+  -webkit-transition:left 0.25s ease-out;
+}
+
+#showList, #searchResults
+{
+  position:relative;
+  width: 350px;
+}
+
+#showList
+{
+  top: 0;
+  left: 0;
+}
+
+#searchResults
+{
+  top:0;
+  left:350px;
+}
+
 div#progressIndicatorDiv>div
 {
   width: 60%;
@@ -71,7 +99,7 @@ div#progressIndicatorDiv>div
   background: #9B4635 !important;
   margin-left: -5px;
   height: 30px;
-  width: 10%;
+  width: 40px;
   margin-top: 3px;
 }
 
@@ -85,10 +113,10 @@ div#progressIndicatorDiv>div
 
 .toolbarItem
 {
-  margin:8px;
+  margin-top:6px;
 }
 
-.toolbarItemHolder:hover
+.toolbarItem:hover
 {
   -webkit-animation-name: scale; 
   -webkit-animation-duration: 0.25s; 
@@ -104,6 +132,31 @@ div#progressIndicatorDiv>div
   margin-left: 5px;
   margin-right: 5px;
   margin-top: 3px;
+  -webkit-transition:all 0.25s ease-out;
+  text-align: center;
+}
+
+.hiddengobackholder
+{
+  width: 0px;
+  margin-left:0px;
+  margin-right: 0px;
+  pointer-events:none;
+}
+.hiddengobackholder>i
+{
+  width: 0px;
+}
+#infoPanel
+{
+  opacity:0;
+  position:absolute; 
+  top:38px; 
+  width:295px; 
+  height:auto; 
+  overflow-y:auto; 
+  left:-350px;
+  -webkit-transition:left 0.25s ease-out, opacity 0.25s ease-out;
 }
 
 .statusIndicator
@@ -140,7 +193,6 @@ div#progressIndicatorDiv>div
 .show
 {
   width:100%;
-  /*background: #E78B77;*/
   background: #E68044;
   height:70px;
   line-height: 70px;
@@ -152,7 +204,6 @@ div#progressIndicatorDiv>div
 {
   width:100%;
   cursor:default; 
-  /*background:#DC5F47;*/
   background: #EA6146;
   height:32px;
   line-height: 32px;
@@ -162,14 +213,12 @@ div#progressIndicatorDiv>div
 
 .episode
 {
-  width:100%;
   padding-left:20px;
   background:white;
   cursor:pointer;
   height:28px;
   line-height: 28px;
   border-bottom: solid 1px #9B4635;
-  /*color:#C04933;*/
   color:#EE4348;
   max-width: 350px;
   white-space: nowrap;
@@ -285,7 +334,7 @@ p.lastUpdatedError
     }
     to 
     { 
-        -webkit-transform: scale(1.2);
+        -webkit-transform: scale(1.5);
     }
 }
 
