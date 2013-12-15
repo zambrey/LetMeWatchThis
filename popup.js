@@ -67,31 +67,31 @@ function PopupRenderManager()
 			if(showPref)
 			{
 				showPref = showPref.split("--");
+				for(var i=0; i<showPref.length; i++)
+				{
+					var div = popupRenderManager.createShowElement(showPref[i]);
+					popupRenderManager.latestArrivalsContainer.appendChild(div);
+					var episodeContainer = document.createElement("div");
+					episodeContainer.className = "episodeContainer";
+					for(var j=0; j<showObjects.length; j++)
+					{
+						if(showPref[i].indexOf(showObjects[j].showTitle) >=0)
+						{
+							episodeContainer.appendChild(popupRenderManager.createEpisodeElement(showObjects[j]));
+							if(showObjects[j].isNew)
+							{
+								popupRenderManager.latestArrivalsContainer.lastChild.className += " newArrival";
+							}
+						}
+					}
+					popupRenderManager.latestArrivalsContainer.appendChild(episodeContainer);
+				}
+				communicationManager.sendMessage(backgroundPage.CONSTANTS.NEW_SHOWS_COUNT_QUERY); 
 			}
 			else
 			{
-				popupRenderManager.showAlertBox("Set Preferences in Options")
+				popupRenderManager.showAlertBox("Set Preferences in Options");
 			}
-			for(var i=0; i<showPref.length; i++)
-			{
-				var div = popupRenderManager.createShowElement(showPref[i]);
-				popupRenderManager.latestArrivalsContainer.appendChild(div);
-				var episodeContainer = document.createElement("div");
-				episodeContainer.className = "episodeContainer";
-				for(var j=0; j<showObjects.length; j++)
-				{
-					if(showPref[i].indexOf(showObjects[j].showTitle) >=0)
-					{
-						episodeContainer.appendChild(popupRenderManager.createEpisodeElement(showObjects[j]));
-						if(showObjects[j].isNew)
-						{
-							popupRenderManager.latestArrivalsContainer.lastChild.className += " newArrival";
-						}
-					}
-				}
-				popupRenderManager.latestArrivalsContainer.appendChild(episodeContainer);
-			}
-			communicationManager.sendMessage(backgroundPage.CONSTANTS.NEW_SHOWS_COUNT_QUERY); 
 		}
 		else if(srcType == constants.searchResultsSrc)
 		{
@@ -120,6 +120,7 @@ function PopupRenderManager()
 			}
 			popupRenderManager.searchResultsContainer.appendChild(seasonContainer);
 		}
+		popupRenderManager.dataSource = showObjects;
 		popupRenderManager.updateUI(srcType);
 	}
 	this.createShowElement = function(title)
@@ -184,6 +185,10 @@ function PopupRenderManager()
 			$(".searchField").val("");
 			popupRenderManager.contentContainer.style.left="-350px";
 			$("#removeSearch").trigger("click");
+			if($("#alertBox").css("display") == "block")
+			{
+				$("#alertBox").css("display","none");	
+			}
 		}
 	}
 	this.renderProgressIndicator = function(visibile)
@@ -202,7 +207,7 @@ function PopupRenderManager()
 	this.showAlertBox = function(message)
 	{
 		$("#alertTextHolder").text(message);
-		$("#alertBox").css({'opacity':'1','pointer-events':'all'});
+		$("#alertBox").css('display','block');
 	}
 	this.fetchAutocompleteData = function()
 	{
@@ -270,9 +275,13 @@ function PopupInteractionManager()
 		var typeahead = $(".typeahead")[0];
 		if(typeahead && popupRenderManager.contentContainer)
 		{
-			if(typeahead.clientHeight > popupRenderManager.contentContainer.clientHeight)
+			if(popupRenderManager.contentContainer.clientHeight>0 && typeahead.clientHeight > popupRenderManager.contentContainer.clientHeight)
 			{
 				typeahead.style.height = popupRenderManager.contentContainer.clientHeight-10+"px";
+			}
+			else if(popupRenderManager.contentContainer.clientHeight == 0)
+			{
+				typeahead.style.height = "30px";	
 			}
 		}
 	});

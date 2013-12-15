@@ -80,7 +80,6 @@ function initiate()
 	}	
 	else
 	{
-		console.log("No preferences set yet. Display the message.");
 		communicationManager.updateCompleted();
 	}
 
@@ -333,7 +332,6 @@ function CommunicationManager()
 			}
 			if(request.messageType == CONSTANTS.IS_DATA_READY_QUERY)
 			{
-				console.log("IS_DATA_READY_QUERY");
 				sendResponse({messageType: CONSTANTS.IS_DATA_READY_RESPONSE, status: contentManager.isDataReady});
 				if(!contentManager.isDataReady && lastUpdated != -1 && communicationManager.requests.length == 0)
 				{
@@ -355,7 +353,6 @@ function CommunicationManager()
 					if(request.actionType == "ADD")
 					{
 						communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+contentManager.getUrlForShow(request.actionParam), CONSTANTS.BATCH_SHOWS_DATA_REQUEST, communicationManager.handleXMLRequestResponse);
-						console.log(request.actionParam +" added.");
 					}
 					else if(request.actionType == "REMOVE")
 					{
@@ -374,8 +371,6 @@ function CommunicationManager()
 							}
 						}
 						localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, lastSeenList.join("--")+"--");
-						console.log(request.actionParam + " removed.");		
-
 						setTimeout(initiate,100);
 					}
 				}
