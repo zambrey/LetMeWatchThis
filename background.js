@@ -138,7 +138,8 @@ function CommunicationManager()
 			latestSeasonFromResponseText = latestEpisodeFromResponseText[1],
 			latestEpisodeNumberFromResponseText = latestEpisodeFromResponseText[2];
 			latestEpisodeNameFromResponseText = latestEpisodeFromResponseText[3];
-			lastSeasonEpisodeNames = latestEpisodeFromResponseText[4];
+			allSeasonEpisodeNames = latestEpisodeFromResponseText[4];
+			numberOfEpisodesInSeason = latestEpisodeFromResponseText[5];
 
 		if(lastSeenShows && lastSeenShows.length != 0)
 		{
@@ -155,21 +156,41 @@ function CommunicationManager()
 				latestEpisodeFromStoreObj = lastSeenShows.slice(latestEpisodeFromStore, endOfLatestEpisode);
 
 				tempEpisodeObj = latestEpisodeFromStoreObj.split("%%");
+				latestSeasonInPref = tempEpisodeObj[1];
 				latestEpisodeInPref = tempEpisodeObj[2];
 
-				var difference = parseInt(latestEpisodeNumberFromResponseText)-parseInt(latestEpisodeInPref);
+				var actualNumberOfSeasons = latestSeasonFromResponseText;
 
-				for(var i=0; i<=difference; i++)
+				var currentEpisodeNameIndex = parseInt(latestEpisodeInPref)-1;
+				for(var i=0;i<parseInt(latestSeasonInPref)-1;i++)
 				{
-					episodeToAdd = parseInt(latestEpisodeInPref)+i;
-					episodeToAdd = episodeToAdd.toString();
+					currentEpisodeNameIndex = currentEpisodeNameIndex + numberOfEpisodesInSeason[i];
+				}
 
-					//Need to check if this works when i != 0
-					episodeNameToAdd = lastSeasonEpisodeNames[lastSeasonEpisodeNames.length-1-(difference-i)];
-					if(!episodeNameToAdd)
-						episodeToAdd = "Season "+latestSeasonFromResponseText+" Episode "+ episodeToAdd;
+				for(var j=parseInt(latestSeasonInPref); j<=parseInt(actualNumberOfSeasons); j++)
+				{
+					if(j==latestSeasonInPref) {
+						var episodeDifference = numberOfEpisodesInSeason[parseInt(j)-1] - parseInt(latestEpisodeInPref);
+						var startEpisode = latestEpisodeInPref;
+					}
+					else {
+						var episodeDifference = numberOfEpisodesInSeason[parseInt(j)-1] - 1;
+						var startEpisode = 1;
+					}
 
-					communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd, episodeNameToAdd, !(i==0));
+					for(var i=0; i<=episodeDifference; i++)
+					{
+						episodeToAdd = parseInt(startEpisode)+i;
+						episodeToAdd = episodeToAdd.toString();
+
+						//Need to check if this works when i != 0
+						episodeNameToAdd = allSeasonEpisodeNames[currentEpisodeNameIndex];
+						currentEpisodeNameIndex = currentEpisodeNameIndex + 1;
+						if(!episodeNameToAdd)
+							episodeToAdd = "Season " + j + " Episode "+ episodeToAdd;
+
+						communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, j.toString(), episodeToAdd, episodeNameToAdd, !(i==0));
+					}
 				}
 			}
 		}
@@ -212,12 +233,14 @@ function CommunicationManager()
 			tvShowNameFromResponse = tvShowNameElementFromResponse.textContent.trim(),
 			episodesParent = doc.getElementById("first"),
 			episodesList = episodesParent.getElementsByClassName("tv_container");
+		var numberOfEpisodesInSeason = [];
+		var namesOfSeasonEpisodes = [];
+		var counter = 0;
 
 		for(var i=0; i<episodesList.length; i++)
 		{
 			subListOfEpisodes = episodesList[i].children;
 			var seasonNumber = null;
-			var namesOfLastSeasonEpisodes = [];
 
 			for(var j=0; j<subListOfEpisodes.length;j++)
 			{
@@ -226,6 +249,11 @@ function CommunicationManager()
 				if(element.tagName == "H2")
 				{
 					seasonNumber = element.textContent.slice(7);
+					if(counter!=0)
+					{
+						numberOfEpisodesInSeason.push(counter);
+						counter = 0;
+					}
 				}
 				else
 				{
@@ -244,12 +272,17 @@ function CommunicationManager()
 					{
 						episodeName = "";
 					}
-					namesOfLastSeasonEpisodes.push(episodeName);
+					
+					if(parseInt(episodeNumber)!=0) {
+						namesOfSeasonEpisodes.push(episodeName);
+						counter = counter + 1;
+					}
 				}
 			}
 		}
+		numberOfEpisodesInSeason.push(counter);
 
-		latestEpisodeObj = [tvShowNameFromResponse, seasonNumber, episodeNumber, episodeName, namesOfLastSeasonEpisodes];
+		latestEpisodeObj = [tvShowNameFromResponse, seasonNumber, episodeNumber, episodeName, namesOfSeasonEpisodes, numberOfEpisodesInSeason];
 		return latestEpisodeObj;
 	}
 	this.updateCompleted = function()
@@ -367,10 +400,15 @@ function CommunicationManager()
 							if(request.actionParam.indexOf(showName) >= 0)
 							{
 								lastSeenList.splice(i,1);
-								break;
+								i--;
 							}
 						}
-						localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, lastSeenList.join("--")+"--");
+						lastSeenList.clean("");
+						var storeLastShows = lastSeenList.join("--");
+						if(storeLastShows != "")
+							storeLastShows = lastSeenList.join("--")+"--";
+
+						localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, storeLastShows);
 						setTimeout(initiate,100);
 					}
 				}
@@ -604,3 +642,12 @@ function setBadge()
 	}
 }
 
+Array.prototype.clean = function(deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+};
