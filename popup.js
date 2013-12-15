@@ -68,6 +68,10 @@ function PopupRenderManager()
 			{
 				showPref = showPref.split("--");
 			}
+			else
+			{
+				popupRenderManager.showAlertBox("Set Preferences in Options")
+			}
 			for(var i=0; i<showPref.length; i++)
 			{
 				var div = popupRenderManager.createShowElement(showPref[i]);
@@ -195,6 +199,11 @@ function PopupRenderManager()
 		$("#progressIndicatorDiv").css('display','none');
 		$("#progressFail").css('display','block');
 	}
+	this.showAlertBox = function(message)
+	{
+		$("#alertTextHolder").text(message);
+		$("#alertBox").css({'opacity':'1','pointer-events':'all'});
+	}
 	this.fetchAutocompleteData = function()
 	{
 		var availableTags = backgroundPage.contentManager.getPrimewireTVObj();
@@ -255,6 +264,17 @@ function PopupInteractionManager()
 			$("#infoPanel").css('opacity','0');
 			$("#infoPanel").css('left','-350px');
 		}
+	});	
+	$(".searchField").keypress(function()
+	{
+		var typeahead = $(".typeahead")[0];
+		if(typeahead && popupRenderManager.contentContainer)
+		{
+			if(typeahead.clientHeight > popupRenderManager.contentContainer.clientHeight)
+			{
+				typeahead.style.height = popupRenderManager.contentContainer.clientHeight-10+"px";
+			}
+		}
 	});
 }
 
@@ -268,7 +288,6 @@ function CommunicationManager()
 		{
 			if(response.messageType == backgroundPage.CONSTANTS.IS_DATA_READY_RESPONSE)
 			{
-				console.log("IS_DATA_READY_RESPONSE: "+response);
 				if(response.status)
 				{
 					popupRenderManager.renderOnDataReady();

@@ -8,8 +8,8 @@
   </head>
   <body>
     <form class="form-search hiddenSearch">
-      <input id="tvShowListPopup" class="searchField" type="text" placeholder="Type Show Title" data-provide="typeahead" autocomplete="off" tabindex="1">
-      <button id="searchBtn" tabindex="2"><i class='icon-search icon-white' style="margin-top:1px;"></i></button>
+      <input id="tvShowListPopup" class="searchField" type="text" placeholder="Type Show Title" data-provide="typeahead" autocomplete="off">
+      <button id="searchBtn"><i class='icon-search icon-white' style="margin-top:1px;"></i></button>
       <div id="removeSearch" class="toolbarItemHolder" style="float:right;"><i class='icon-remove icon-white toolbarItem'></i></div>
     </form>
     <div class="topToolbar">
@@ -37,6 +37,9 @@
     </div>
     <div id="progressFail" class="alert alert-block" style="margin-top:20px;text-align:center; display:none;">
         <h5 id="failTextHolder">Something went wrong.</h5>
+    </div>
+    <div id="alertBox" class="alert alert-warning">
+      <h4 id="alertTextHolder"></h4>
     </div>
   </body>
   <footer>
