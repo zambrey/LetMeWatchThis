@@ -409,7 +409,7 @@ function CommunicationManager()
 							storeLastShows = lastSeenList.join("--")+"--";
 
 						localStorageManager.setLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE, storeLastShows);
-						setTimeout(initiate,100);
+						contentManager.removeEpisodesForShow(request.actionParam);
 					}
 				}
 			}	
@@ -519,6 +519,26 @@ function ContentManager()
 		for(i=0; i<showsList.length; i++)
 		{
 			showsList[i].isNew = false;
+		}
+		setBadge();
+	}
+	this.removeEpisodesForShow = function(showName)
+	{
+		var toRemove = [];
+		for(var i=0; i<this.shows.length; i++)
+		{
+			if(showName.indexOf(this.shows[i].showTitle) >= 0)
+			{
+				toRemove.push(i);
+			}
+		}
+		for(var i=0; i<toRemove.length; i++)
+		{
+			if(this.shows[toRemove[i]].isNew)
+			{
+				this.newShowsCnt--;
+			}
+			this.shows.splice(toRemove[i],1);
 		}
 		setBadge();
 	}
