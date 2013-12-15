@@ -20,7 +20,7 @@ function initiateManagers()
 	communicationManager = new CommunicationManager();
 	localStorageManager = new LocalStorageManager();
 	CONSTANTS = new constants();
-	communicationManager.sendXMLRequest(CONSTANTS.TV_SHOWS_DIRECTORY_URL, CONSTANTS.TV_SHOWS_DIRECTORY_REQEUST, communicationManager.handleXMLRequestResponse);
+	communicationManager.sendXMLRequest(CONSTANTS.TV_SHOWS_DIRECTORY_URL, CONSTANTS.TV_SHOWS_DIRECTORY_REQUEST, communicationManager.handleXMLRequestResponse);
 }
 
 function constants()
@@ -31,7 +31,7 @@ function constants()
 	this.IMAGES_URL = "http://images.primewire.ag/"
 
 	//REQUEST TYPES; JSON file, ticker req, show req
-	this.TV_SHOWS_DIRECTORY_REQEUST = "tvShowsDirectoryRequest";
+	this.TV_SHOWS_DIRECTORY_REQUEST = "tvShowsDirectoryRequest";
 	this.BATCH_SHOWS_DATA_REQUEST = "batchShowsDataRequest";
 	this.SINGLE_SHOW_DATA_REQUEST = "singleShowDataRequest";
 
@@ -106,7 +106,7 @@ function CommunicationManager()
 		{
 			communicationManager.processResponseForNewEpisodes(request, responseText);
 		}
-		else if(requestType == CONSTANTS.TV_SHOWS_DIRECTORY_REQEUST)
+		else if(requestType == CONSTANTS.TV_SHOWS_DIRECTORY_REQUEST)
 		{
 			communicationManager.setTvShowsDirectory(request, responseText);
 		}
@@ -166,17 +166,17 @@ function CommunicationManager()
 					episodeToAdd = episodeToAdd.toString();
 
 					//Need to check if this works when i != 0
-					episodeNameToAdd = lastSeasonEpisodeNames[lastSeasonEpisodeNames.length-i-1];
+					episodeNameToAdd = lastSeasonEpisodeNames[lastSeasonEpisodeNames.length-1-(difference-i)];
 					if(!episodeNameToAdd)
 						episodeToAdd = "Season "+latestSeasonFromResponseText+" Episode "+ episodeToAdd;
 
-					communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd, episodeName, !(i==0));
+					communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, episodeToAdd, episodeNameToAdd, !(i==0));
 				}
 			}
 		}
 		else
 		{
-			communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, true);
+			communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, latestEpisodeNameFromResponseText, true);
 		}
 
 		setBadge();
@@ -184,7 +184,7 @@ function CommunicationManager()
 	/* addEpisodeToContent
 	 * Builds link to episode's webpage and shows's cover and add the show object to content
 	 */
-	this.addEpisodeToContent = function(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, latestEpisodeNameFromResponseText, link, isNewEpisode)
+	this.addEpisodeToContent = function(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, latestEpisodeNameFromResponseText, isNewEpisode)
 	{
 		var doc = document.implementation.createHTMLDocument("addPrefShow");
 		doc.documentElement.innerHTML = responseText;
