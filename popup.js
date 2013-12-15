@@ -262,12 +262,18 @@ function PopupInteractionManager()
 		if($("#infoPanel").css('opacity') == '0')
 		{
 			$("#infoPanel").css('opacity','1');
-			$("#infoPanel").css('left','2px');	
+			$("#infoPanel").css('left','2px');
+			var infoPanel = $("#infoPanel")[0];
+			if(infoPanel.clientHeight > document.body.clientHeight)
+			{
+				document.body.style.height = infoPanel.clientHeight+40 + "px";
+			} 	
 		}
 		else
 		{
 			$("#infoPanel").css('opacity','0');
 			$("#infoPanel").css('left','-350px');
+			document.body.style.height = "auto";
 		}
 	});	
 	$(".searchField").keypress(function()
