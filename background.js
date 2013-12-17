@@ -170,7 +170,9 @@ function CommunicationManager()
 				for(var j=parseInt(latestSeasonInPref); j<=parseInt(actualNumberOfSeasons); j++)
 				{
 					if(j==latestSeasonInPref) {
-						var episodeDifference = numberOfEpisodesInSeason[parseInt(j)-1] - parseInt(latestEpisodeInPref);
+						var episodeDifference = 0;
+						if(numberOfEpisodesInSeason[parseInt(j)-1] != undefined)
+							episodeDifference = numberOfEpisodesInSeason[parseInt(j)-1] - parseInt(latestEpisodeInPref);
 						var startEpisode = latestEpisodeInPref;
 					}
 					else {
@@ -186,8 +188,8 @@ function CommunicationManager()
 						//Need to check if this works when i != 0
 						episodeNameToAdd = allSeasonEpisodeNames[currentEpisodeNameIndex];
 						currentEpisodeNameIndex = currentEpisodeNameIndex + 1;
-						if(!episodeNameToAdd)
-							episodeToAdd = "Season " + j + " Episode "+ episodeToAdd;
+						if(episodeNameToAdd == undefined || !episodeNameToAdd)
+							episodeNameToAdd = "Season " + j + " Episode "+ episodeToAdd;
 
 						communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, j.toString(), episodeToAdd, episodeNameToAdd, !(i==0));
 					}
