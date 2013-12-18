@@ -64,12 +64,15 @@ function initiate()
 	contentManager.isDataReady = false;
 	contentManager.resetShows();
 	allPrefsUpdated = 0;
+
+	//Get user preferences from local storage
 	var tempPrefs = preferencesManager.getPreferenceValue(CONSTANTS.TV_SHOW_PREFS_PREF);
 	if(!tempPrefs || tempPrefs == "")
 		showPrefs = null;
 	else
 		showPrefs = tempPrefs.split('--');
 
+	//Get latest show for each series in user preference
 	if(showPrefs)
 	{
 		for(var i=0; i<showPrefs.length;i++)
@@ -120,18 +123,26 @@ function CommunicationManager()
 	}
 	this.processResponseForNewEpisodes = function(request, responseText)
 	{
+		//Counter to check number of preference shows updated
 		allPrefsUpdated += 1;
 		
+		//Process show for new episode
 		communicationManager.processIndividualShowForNewEpisodes(request, responseText);
 		var tempPrefs = preferencesManager.getPreferenceValue(CONSTANTS.TV_SHOW_PREFS_PREF).split('--');
+		
+		//Once all shows are updated call updateCompleted()
 		if(allPrefsUpdated == tempPrefs.length)
 		{
 			communicationManager.updateCompleted();
 		}
 	}
 
+	/*	When user adds TV Show for first time, function adds current latest episode
+	*	If user has added TV Show before, function checks if any episodes have been missed in between and adds all
+	*/
 	this.processIndividualShowForNewEpisodes = function(request, responseText)
 	{
+		//Get stored value of last seen user shows, find details of latest episode of show
 		var lastSeenShows = localStorageManager.getLocalStorageValue(CONSTANTS.LAST_SEEN_SHOWS_VALUE),
 			latestEpisodeFromResponseText = communicationManager.findLatestEpisodeInResponseText(responseText),
 			tvShowNameFromResponse = latestEpisodeFromResponseText[0],
@@ -141,17 +152,21 @@ function CommunicationManager()
 			allSeasonEpisodeNames = latestEpisodeFromResponseText[4];
 			numberOfEpisodesInSeason = latestEpisodeFromResponseText[5];
 
+		//If lastSeenShows is not empty or null, we have to check if response TV show is in lastSeenShows
 		if(lastSeenShows && lastSeenShows.length != 0)
 		{
+			//Get index of TV show in lastSeenShows
 			var latestEpisodeFromStore = lastSeenShows.lastIndexOf(tvShowNameFromResponse);
 			if (latestEpisodeFromStore == -1)
 			{
+				//TV show isn't contained in last seen shows so add to content, give general name in case episode name is blank
 				if(!latestEpisodeNameFromResponseText)
 					latestEpisodeNameFromResponseText = "Season "+latestSeasonFromResponseText+" Episode "+ latestEpisodeNumberFromResponseText;
 				communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, latestEpisodeNameFromResponseText, true);
 			}
 			else
 			{
+				//Else, get Season and Episode numbers of TV Show in preference that matches that from response text
 				var endOfLatestEpisode = lastSeenShows.indexOf('--', latestEpisodeFromStore);
 				latestEpisodeFromStoreObj = lastSeenShows.slice(latestEpisodeFromStore, endOfLatestEpisode);
 
@@ -161,41 +176,48 @@ function CommunicationManager()
 
 				var actualNumberOfSeasons = latestSeasonFromResponseText;
 
+				//Get index of correct episode name of latest episode
 				var currentEpisodeNameIndex = parseInt(latestEpisodeInPref)-1;
 				for(var i=0;i<parseInt(latestSeasonInPref)-1;i++)
 				{
 					currentEpisodeNameIndex = currentEpisodeNameIndex + numberOfEpisodesInSeason[i];
 				}
 
+				//For each season that is different..
 				for(var j=parseInt(latestSeasonInPref); j<=parseInt(actualNumberOfSeasons); j++)
 				{
+					//Get missing episode numbers if preference has latest season of TV show
 					if(j==latestSeasonInPref) {
 						var episodeDifference = 0;
 						if(numberOfEpisodesInSeason[parseInt(j)-1] != undefined)
 							episodeDifference = numberOfEpisodesInSeason[parseInt(j)-1] - parseInt(latestEpisodeInPref);
 						var startEpisode = latestEpisodeInPref;
 					}
+					//Else season does not match so add all remaining episodes of missing season
 					else {
 						var episodeDifference = numberOfEpisodesInSeason[parseInt(j)-1] - 1;
 						var startEpisode = 1;
 					}
 
+					//Add episodes
 					for(var i=0; i<=episodeDifference; i++)
 					{
 						episodeToAdd = parseInt(startEpisode)+i;
 						episodeToAdd = episodeToAdd.toString();
 
-						//Need to check if this works when i != 0
+						//Get episode name to add, if blank give generic name
 						episodeNameToAdd = allSeasonEpisodeNames[currentEpisodeNameIndex];
 						currentEpisodeNameIndex = currentEpisodeNameIndex + 1;
 						if(episodeNameToAdd == undefined || !episodeNameToAdd)
 							episodeNameToAdd = "Season " + j + " Episode "+ episodeToAdd;
 
+						//Add episode to content using season+episode number, episode name
 						communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, j.toString(), episodeToAdd, episodeNameToAdd, !(i==0));
 					}
 				}
 			}
 		}
+		//Else response contains new episode of first TV show added
 		else
 		{
 			communicationManager.addEpisodeToContent(responseText, tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, latestEpisodeNameFromResponseText, true);
@@ -203,6 +225,7 @@ function CommunicationManager()
 
 		setBadge();
 	}
+
 	/* addEpisodeToContent
 	 * Builds link to episode's webpage and shows's cover and add the show object to content
 	 */
@@ -211,12 +234,14 @@ function CommunicationManager()
 		var doc = document.implementation.createHTMLDocument("addPrefShow");
 		doc.documentElement.innerHTML = responseText;
 		
+		//Build the show object to be shown on popup using the link, season+episode numbers, episode names
 		var spanLinkObj = doc.getElementsByClassName("titles")[1].firstChild,
 			linkElementObj = spanLinkObj.children[0],
 			linkToTVShow = linkElementObj.getAttribute("href");
 			link = linkToTVShow+"/season-"+latestSeasonFromResponseText+"-episode-"+latestEpisodeNumberFromResponseText,
 			tempShowObj = new ShowObject(tvShowNameFromResponse, latestSeasonFromResponseText, latestEpisodeNumberFromResponseText, latestEpisodeNameFromResponseText, link, isNewEpisode);
 		
+		//Set new flag according to isNewEpisode boolean
 		if(isNewEpisode)
 			contentManager.addShow(tempShowObj, 1);
 		else
@@ -238,19 +263,38 @@ function CommunicationManager()
 		var numberOfEpisodesInSeason = [];
 		var namesOfSeasonEpisodes = [];
 		var counter = 0;
+		var episodeNumber = null;
+		var seasonNumber = null;
 
+		//Checks if seasons are in continuous order, BBT has incorrect Season 9 page after Season 7
+		var seasonAnomalyFlag = false;
+
+		//Parse responseText for all seasons and episodes and 
 		for(var i=0; i<episodesList.length; i++)
 		{
 			subListOfEpisodes = episodesList[i].children;
-			var seasonNumber = null;
-
+			
 			for(var j=0; j<subListOfEpisodes.length;j++)
 			{
 				var element = subListOfEpisodes[j];
 				
+				//Seasons are in heading elements
 				if(element.tagName == "H2")
 				{
+					//Parsing for season number
+					if(i==0 && j==0)
+						previousSeasonNumber = "0";
+					else
+						previousSeasonNumber = seasonNumber;
 					seasonNumber = element.textContent.slice(7);
+
+					//Check for incorrect seasons
+					if(parseInt(seasonNumber)-parseInt(previousSeasonNumber) > 1 || previousSeasonNumber>seasonNumber) {
+						seasonAnomalyFlag = true;
+						break;
+					}
+
+					//Add number of episodes in season to variable
 					if(counter!=0)
 					{
 						numberOfEpisodesInSeason.push(counter);
@@ -259,10 +303,16 @@ function CommunicationManager()
 				}
 				else
 				{
+					//Parse for episode name
 					fullEpisodeName = element.textContent;
+					if(i==0 && j==0)
+						previousEpisodeNumber = "0";
+					else
+						previousEpisodeNumber = episodeNumber;
 					var patt = new RegExp('\\w+\\s[\\d]+');
 					episodeNumber = patt.exec(fullEpisodeName)[0];
 					episodeNumber = episodeNumber.slice(8);
+
 					patt = new RegExp('-[\\d\\D]*');
 					tempMatch = patt.exec(fullEpisodeName);
 					if(tempMatch != null)
@@ -275,6 +325,7 @@ function CommunicationManager()
 						episodeName = "";
 					}
 					
+					//Store episode name in case we need later
 					if(parseInt(episodeNumber)!=0) {
 						namesOfSeasonEpisodes.push(episodeName);
 						counter = counter + 1;
@@ -284,6 +335,10 @@ function CommunicationManager()
 		}
 		numberOfEpisodesInSeason.push(counter);
 
+		if(seasonAnomalyFlag)
+			seasonNumber = previousSeasonNumber;
+
+		//Return latest Episode object
 		latestEpisodeObj = [tvShowNameFromResponse, seasonNumber, episodeNumber, episodeName, namesOfSeasonEpisodes, numberOfEpisodesInSeason];
 		return latestEpisodeObj;
 	}
@@ -296,6 +351,8 @@ function CommunicationManager()
 	
 	this.setTvShowsDirectory = function(request, responseText)
 	{
+		//Read JSON file and create ImageMap = TV Show Name: Image URL
+		//And create tvURLMap = TV Show Name: Link to TV Show page
 		if(contentManager.primewireTVObj.length == 0){
 			var jsObject = JSON.parse(responseText);
 			for(var i=0; i<jsObject['TV Series'].length; i++)
@@ -381,10 +438,12 @@ function CommunicationManager()
 			{
 				sendResponse({messageType: CONSTANTS.NEW_SHOWS_COUNT_RESPONSE, count:contentManager.newShowsCnt});
 			}
+			//Called when TV Show preferences are changed
 			if(request.messageType == CONSTANTS.TV_SHOW_PREF_UPDATED)
 			{
 				if(request.actionType)
 				{
+					//If show is added, we need to find latest episode and add to content
 					if(request.actionType == "ADD")
 					{
 						communicationManager.sendXMLRequest(CONSTANTS.HOME_URL+contentManager.getUrlForShow(request.actionParam), CONSTANTS.BATCH_SHOWS_DATA_REQUEST, communicationManager.handleXMLRequestResponse);
@@ -398,14 +457,18 @@ function CommunicationManager()
 							lastSeenList = lastSeen.split("--");
 						for(i=0; i<lastSeenList.length; i++)
 						{
+							//Find index and remove from there
 							var showName = lastSeenList[i].split("%%")[0];
 							if(request.actionParam.indexOf(showName) >= 0)
 							{
 								lastSeenList.splice(i,1);
+								//We might have multiple episodes of same tv show so loop through again
 								i--;
 							}
 						}
+						//Clean out the empty -- that comes from ""
 						lastSeenList.clean("");
+						//Rewrite last shows and store in local storage
 						var storeLastShows = lastSeenList.join("--");
 						if(storeLastShows != "")
 							storeLastShows = lastSeenList.join("--")+"--";
@@ -434,6 +497,7 @@ function ContentManager()
 	}
 	this.addShow = function(show, newShowAdd)
 	{
+		//Add show and update new shows counter
 		for(var i=0; i<this.shows.length; i++)
 		{
 			if(this.shows[i].showTitle == show.showTitle)
