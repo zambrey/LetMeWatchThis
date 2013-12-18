@@ -3,7 +3,7 @@
 
 	"name": "LetMeWatchThis",
 	"description": "This extension monitors www.primewire.ag for new TV shows.",
-	"version": "0.0",
+	"version":"0.0.0",
 
   "icons":
   {
@@ -19,7 +19,7 @@
 
    "background": 
    {
-    "scripts": ["background.js"]
+    "scripts":["background.js"]
     },
 
     "options_page":"options.html",
