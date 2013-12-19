@@ -5,12 +5,12 @@ var contentManager = null,
 	localStorageManager = null,
 	CONSTANTS = null,
 	lastUpdated = -1,
-	REFRESH_INTERVAL = 3*60*60*1000; //Three hour
+	REFRESH_INTERVAL = 3*60*60*1000,
+	numAttempts = 0, maxAttempts = 10,
 	allPrefsUpdated = 0;
 {
 	initiateManagers();
-
-	setTimeout(initiate,4000);	//Need to put in a better check to see if tv shows directory is ready.
+	setTimeout(initiate,1000);
 }
 
 function initiateManagers()
@@ -61,6 +61,14 @@ function constants()
 
 function initiate()
 {
+	if(Object.keys(contentManager.tvURLMap).length <=0)
+	{
+		if(numAttempts++ < maxAttempts)
+		{
+			setTimeout(initiate,2000);
+		}
+		return;
+	}
 	contentManager.isDataReady = false;
 	contentManager.resetShows();
 	allPrefsUpdated = 0;
@@ -719,8 +727,8 @@ function setBadge()
 	var badgeNumber = contentManager.newShowsCnt;
 	if(badgeNumber > 0)
 	{
-		chrome.browserAction.setBadgeText({"text":badgeNumber.toString()});//248,148,6
-		chrome.browserAction.setBadgeBackgroundColor({"color":[248,248,6,200]});	
+		chrome.browserAction.setBadgeText({"text":badgeNumber.toString()});
+		chrome.browserAction.setBadgeBackgroundColor({"color":[155, 70, 53,200]});	
 	}
 	else
 	{
