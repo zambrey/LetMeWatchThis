@@ -276,6 +276,7 @@ function CommunicationManager()
 
 		//Checks if seasons are in continuous order, BBT has incorrect Season 9 page after Season 7
 		var seasonAnomalyFlag = false;
+		var seasonChanged = false;
 
 		//Parse responseText for all seasons and episodes and 
 		for(var i=0; i<episodesList.length; i++)
@@ -295,6 +296,7 @@ function CommunicationManager()
 					else
 						previousSeasonNumber = seasonNumber;
 					seasonNumber = element.textContent.slice(7);
+					seasonChanged = true;
 
 					//Check for incorrect seasons
 					if(parseInt(seasonNumber)-parseInt(previousSeasonNumber) > 1 || previousSeasonNumber>seasonNumber) {
@@ -321,6 +323,12 @@ function CommunicationManager()
 					episodeNumber = patt.exec(fullEpisodeName)[0];
 					episodeNumber = episodeNumber.slice(8);
 
+					//Handles not continuous episodes anamoly
+					if(!seasonChanged && parseInt(episodeNumber)-parseInt(previousEpisodeNumber)>1) {
+						episodeNumber = previousEpisodeNumber;
+						break;
+					}
+
 					patt = new RegExp('-[\\d\\D]*');
 					tempMatch = patt.exec(fullEpisodeName);
 					if(tempMatch != null)
@@ -338,6 +346,8 @@ function CommunicationManager()
 						namesOfSeasonEpisodes.push(episodeName);
 						counter = counter + 1;
 					}
+
+					seasonChanged = false;
 				}
 			}
 		}
