@@ -83,8 +83,8 @@ module.exports = function(grunt) {
             },
             update_info_panel: {
                 path:destFolder+"/popup.html",
-                pattern: "[0-9].[0-9].[0-9]",
-                replacement: newVersion,
+                pattern: "v[0-9].[0-9].[0-9]",
+                replacement: "v"+newVersion,
                 recursive:false 
             }
         },
