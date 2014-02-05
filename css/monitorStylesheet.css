@@ -36,7 +36,7 @@ a:hover
 }
 .typeahead>.active>a, .typeahead>.active>a:hover
 {
-  background: #9B4635;
+  /*background: #9B4635;*/
   text-overflow: ellipsis;
   overflow: hidden;
 }
@@ -47,13 +47,13 @@ a:hover
 ::-webkit-scrollbar-track
 {
   -webkit-box-shadow: inset 0 0 4px rgba(120,120,120,1); 
-  border-radius: 0px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb
 {
-  background: rgba(155,70,53,1); 
-  border-radius: 0px;
+  background: #555555; 
+  border-radius: 4px;
 }
 
 
@@ -71,14 +71,9 @@ a:hover
 
 @-webkit-keyframes scale 
 {
-    from 
-    {
-        -webkit-transform: scale(1.0);
-    }
-    to 
-    { 
-        -webkit-transform: scale(1.5);
-    }
+    0% { -webkit-transform: scale(1.0);}
+    50% { -webkit-transform: scale(1.5);}
+    100% { -webkit-transform: scale(1.0);}
 }
 
 .alert
@@ -126,7 +121,7 @@ a:hover
   margin-bottom: 0px;
   height: 36px;
   background: #E68044;
-  border-bottom: solid 1px #9B4635;
+  border-bottom: solid 1px #CCCCCC;
   position: absolute;
   -webkit-transition:opacity 0.25s ease-out, top 0.25s ease-out;
 }
@@ -148,10 +143,10 @@ a:hover
   width: 250px;
   border-radius:0 !important; 
   box-shadow: none !important;
-  border: solid 1px #9B4635 !important;
+  /*border: solid 1px #9B4635 !important;*/
   height: 36px;
   margin-top: 3px;
-  color: #9B4635 !important;
+  color: #555555 !important;
 }
 
 #searchBtn
@@ -159,7 +154,7 @@ a:hover
   border-radius:0 !important; 
   box-shadow: none !important; 
   border: none !important;
-  background: #9B4635 !important;
+  /*background: #9B4635 !important;*/
   margin-left: -5px;
   height: 30px;
   width: 40px;
@@ -170,7 +165,7 @@ a:hover
 {
   width: 100%;
   background: #E68044;
-  border-bottom: solid 1px #9B4635;
+  border-bottom: solid 1px #CCCCCC;
   height: 36px;
 }
 
@@ -282,7 +277,7 @@ div#progressIndicatorDiv>div
   background: #E68044;
   height:70px;
   line-height: 70px;
-  border-bottom: solid 1px #9B4635;
+  border-bottom: solid 1px #CCCCCC;
   color:white;
 }
 
@@ -293,7 +288,7 @@ div#progressIndicatorDiv>div
   background: #EA6146;
   height:32px;
   line-height: 32px;
-  border-bottom: solid 1px #9B4635;
+  border-bottom: solid 1px #CCCCCC;
   color:white;
 }
 
@@ -304,7 +299,7 @@ div#progressIndicatorDiv>div
   cursor:pointer;
   height:28px;
   line-height: 28px;
-  border-bottom: solid 1px #9B4635;
+  border-bottom: solid 1px #CCCCCC;
   color:#EE4348;
   max-width: 350px;
   white-space: nowrap;
@@ -340,18 +335,17 @@ div#preferencesPageRootDiv
   height: auto; 
   padding-bottom:20px;
   padding-top: 20px;
-  color: #9B4635;
-  border: solid 1px #9B4635;
+  color: #555555;
+  -webkit-transition:all 0.25s linear;
 }
 
 div#preferencesPageIcon
 {
   text-align: center;
-  width:120px;
-  height:120px;
-  border-radius: 120px;
-  background: rgba(68,230,230,1);
-  box-shadow: 0px 0px 15px 5px #9B4635;
+  width:80px;
+  height:80px;
+  border-radius: 80px;
+  box-shadow: 0px 0px 5px 2px #9B4635;
   margin-left: auto;
   margin-right:auto;
   margin-bottom: 30px;
@@ -359,8 +353,8 @@ div#preferencesPageIcon
 
 div#preferencesPageIcon>img
 {
-  width:80px;
-  height:80px;
+  width:40px;
+  height:40px;
   margin-top: 17px;
 }
 
@@ -379,6 +373,11 @@ input#timeValue
 {
   width:70px;
   text-align:right;
+}
+
+#colorSelection
+{
+  border-radius:0px;
 }
 
 p.lastUpdated

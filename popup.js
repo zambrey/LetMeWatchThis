@@ -9,6 +9,18 @@ var backgroundPage = chrome.extension.getBackgroundPage(),
 	popupRenderManager.initRender();
 }
 
+window.onload = function()
+{
+	$(".topToolbar").css({"background":backgroundPage.themeManager.MAIN_COLOR});
+	$(".toolbarItemHolder").css({"background":backgroundPage.themeManager.SHADE_1});
+	$(".form-search").css({"background":backgroundPage.themeManager.MAIN_COLOR});
+	$("#searchBtn").css({"background":backgroundPage.themeManager.SHADE_1});
+	$(".searchField").css({"border":"solid 1px "+backgroundPage.themeManager.SHADE_1});
+	$("#infoPanel").css({"background":backgroundPage.themeManager.TINT_1,"color":backgroundPage.themeManager.SHADE_1});
+	$("a").css({"color":backgroundPage.themeManager.MAIN_COLOR});
+	$(".bar").css({"background-color":backgroundPage.themeManager.MAIN_COLOR});
+}
+
 function initiateManagers()
 {
 	constants = new Constants();
@@ -127,6 +139,7 @@ function PopupRenderManager()
 	{
 		var div = document.createElement("div");
 		div.className = "show";
+		div.style.background = backgroundPage.themeManager.MAIN_COLOR;
 		var statusIcon = document.createElement('i');
 		statusIcon.className = "icon-chevron-up icon-white statusIndicator";
 		statusIcon.style.marginTop = "28px";
@@ -147,6 +160,7 @@ function PopupRenderManager()
 	{
 		var season = document.createElement("div");
 		season.className = "season";
+		season.style.background = backgroundPage.themeManager.SHADE_1;
 		var seasonTitle = document.createElement('div');
 		seasonTitle.className = "seasonTitle";
 		seasonTitle.innerText = seasonKey;
@@ -164,6 +178,7 @@ function PopupRenderManager()
 			clickHandler;
 		showDiv.innerText = "S"+showObject.seasonNumber+"E"+showObject.episodeNumber +" "+showObject.episodeName;
 		showDiv.className = "episode";
+		showDiv.style.color = backgroundPage.themeManager.SHADE_2;
 		if(showObject.isNew)
 		{
 			showDiv.className += " newArrival";

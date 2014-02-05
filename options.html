@@ -24,26 +24,13 @@
     <table id="preferencesTable">
       <tr>
         <td style="vertical-align:top;">
-          <label class="control-label" style="margin-top:5px;"><i id="notificationPrefHelp" class="icon-question-sign" style="margin-right:4px;" data-toggle="tooltip" data-original-title="List the shows for which you want to be notified. By default notifications are shown for all shows." data-placement="bottom" data-animation="true"></i>Notification Preferences:</label>
-
-        </td>
-        <td>
-          <div ng-controller="AlertDemoCtrl">
-            <input id="tvShowList" type="text" placeholder="Start Typing Show Title..." style="border-radius:0px;color:#9B4635;" data-provide="typeahead" autocomplete="off" x-webkit-speech speech>
-            <button class='btn' ng-click="addAlert()" style="background:#9B4635;border:border: solid 1px #9B4635; margin-bottom:10px;"><i class="icon-plus icon-white"></i></button>
-            <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)" style = 'margin-bottom:5px;'>{{alert.msg}}</alert>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td style="vertical-align:top;">
           <label class="control-label" style="margin-top:5px;"><i id="refreshIntervalHelp" class="icon-question-sign" style="margin-right:4px;" data-toggle="tooltip" data-original-title="Set the time interval to refresh the shows data." data-placement="bottom" data-animation="true"></i>Refresh Interval:</label>
         </td>
         <td>
           <div class="input-append controls">
-            <input class="span2" id="timeValue" style="border-radius:0px;color:#9B4635;" type="text">
+            <input class="span2" id="timeValue" style="border-radius:0px;" type="text">
             <div class="btn-group">
-              <button id='selectedTimeUnit' class="btn dropdown-toggle" style="color:#9B4635;" data-toggle="dropdown"><span class="caret"></span></button>
+              <button id='selectedTimeUnit' class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
               <ul class="dropdown-menu">
                 <li><a href="#">Hours</a></li>
                 <li><a href="#">Minutes</a></li>
@@ -53,6 +40,45 @@
           </div>
         </td>
       </tr>
+      <tr>
+        <td style="vertical-align:top;">
+          <label class="control-label" style="margin-top:5px;"><i id="themeColorHelp" class="icon-question-sign" style="margin-right:4px;" data-toggle="tooltip" data-original-title="Change theme color of extension." data-placement="bottom" data-animation="true"></i>Theme Color:</label>
+        </td>
+        <td>
+          <select class="form-control" name="colorSelection" id="colorSelection">
+            <option value="#7FDBFF">Aqua</option>
+            <option value="#0074D9">Blue</option>
+            <option value="#F012BE">Fuchsia</option>
+            <option value="#AAAAAA">Gray</option>
+            <option value="#2ECC40">Green</option>
+            <option value="#01FF70">Lime</option>
+            <option value="#85144B">Maroon</option>
+            <option value="#001F3F">Navy</option>
+            <option value="#3D9970">Olive</option>
+            <option value="#FF851B">Orange</option>
+            <option value="#B10DC9">Purple</option>
+            <option value="#FF4136">Red</option>
+            <!-- <option value="#DDDDDD">Silver</option> -->
+            <option value="#39CCCC">Teal</option>
+            <!-- <option value="#FFFFFF">White</option> -->
+            <option value="#FFDC00">Yellow</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align:top;">
+          <label class="control-label" style="margin-top:5px;"><i id="notificationPrefHelp" class="icon-question-sign" style="margin-right:4px;" data-toggle="tooltip" data-original-title="List the shows for which you want to be notified. By default notifications are shown for all shows." data-placement="bottom" data-animation="true"></i>Notification Preferences:</label>
+
+        </td>
+        <td>
+          <div ng-controller="AlertDemoCtrl">
+            <input id="tvShowList" type="text" placeholder="Start Typing Show Title..." style="border-radius:0px;" data-provide="typeahead" autocomplete="off" x-webkit-speech speech>
+            <button id="addButton" class='btn' ng-click="addAlert()" style="background:#9B4635;border:solid 1px #9B4635; margin-bottom:10px;"><i class="icon-plus icon-white"></i></button>
+            <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)" style = 'margin-bottom:5px;'>{{alert.msg}}</alert>
+          </div>
+        </td>
+      </tr>
+      
     </table>
     <div style="text-align:center;">
       <i class="icon-refresh" style=""></i>

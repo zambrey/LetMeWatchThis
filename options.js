@@ -3,6 +3,7 @@ angular.module('plunker', ['ui.bootstrap']);
 var backgroundPage = chrome.extension.getBackgroundPage(),
 	timeVal = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.REFRESH_TIME_VAL_PREF),
 	timeUnit = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.REFRESH_TIME_UNIT_PREF),
+	themeColor = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.THEME_COLOR_PREF),
 	numAttempts = 0;
 
 {
@@ -12,8 +13,14 @@ var backgroundPage = chrome.extension.getBackgroundPage(),
 
 	$("#timeValue").val(timeVal);
 	$("#selectedTimeUnit").html(timeUnit+" <span class=\"caret\"></span>");	
+	$("#colorSelection").val(themeColor);
 	$(".lastUpdated").text(getLastUpdatedText());
 
+}
+
+window.onload = function()
+{
+	recolorSettingsPage();
 }
 
 function renderOnDataReady()
@@ -48,12 +55,17 @@ function setInteraction()
    		//sendMessage(backgroundPage.CONSTANTS.INITIATE_AGAIN);
    });
 
+   $("#colorSelection").change(function(){
+   		backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.THEME_COLOR_PREF, $(this).val());
+   		sendMessage(backgroundPage.CONSTANTS.THEME_CHANGED);
+   })
    $(".icon-refresh").click(function(){
    		sendMessage(backgroundPage.CONSTANTS.INITIATE_AGAIN);
    });
 
    $("#notificationPrefHelp").tooltip();
    $("#refreshIntervalHelp").tooltip();
+   $("#themeColorHelp").tooltip();
 }
 
 function setLastUpdatedText()
@@ -154,6 +166,13 @@ function sendMessage(msgType, argument)
 	});
 }
 
+function recolorSettingsPage()
+{
+	$("#preferencesPageIcon").css("box-shadow","0px 0px 5px 2px "+backgroundPage.themeManager.MAIN_COLOR);
+	$("#addButton").css({"background":backgroundPage.themeManager.MAIN_COLOR,"border":"solid 1px "+backgroundPage.themeManager.MAIN_COLOR});
+	$(".alert").css({"background":backgroundPage.themeManager.TINT_1,"color":backgroundPage.themeManager.SHADE_1,"border":"solid 1px "+backgroundPage.themeManager.TINT_2});
+}
+
 function AlertDemoCtrl($scope) 
 {
   $scope.alerts = [];
@@ -220,6 +239,10 @@ chrome.extension.onRequest.addListener(
 		{
 			setLastUpdatedText();
 			$(".icon-refresh").removeClass('icon-refresh-rotate');
+		}
+		if (request.messageType == backgroundPage.CONSTANTS.THEME_UPDATED)
+		{
+			recolorSettingsPage();
 		}	
 	});
  

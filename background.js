@@ -3,6 +3,7 @@ var contentManager = null,
 	cookieManager = null,
 	communicationManager = null,
 	localStorageManager = null,
+	themeManager = null,
 	CONSTANTS = null,
 	lastUpdated = -1,
 	REFRESH_INTERVAL = 3*60*60*1000,
@@ -19,6 +20,7 @@ function initiateManagers()
 	preferencesManager = new PreferencesManager();
 	communicationManager = new CommunicationManager();
 	localStorageManager = new LocalStorageManager();
+	themeManager = new ThemeManager();
 	CONSTANTS = new constants();
 	communicationManager.sendXMLRequest(CONSTANTS.TV_SHOWS_DIRECTORY_URL, CONSTANTS.TV_SHOWS_DIRECTORY_REQUEST, communicationManager.handleXMLRequestResponse);
 }
@@ -45,8 +47,10 @@ function constants()
 	this.REFRESH_TIME_VAL_PREF = "refreshTimeValPref";
 	this.REFRESH_TIME_UNIT_PREF = "refreshTimeUnitPref";
 	this.TV_SHOW_PREFS_PREF = "tvShowPrefsPref";
+	this.THEME_COLOR_PREF = "themeColorPref";
 	this.DEFAULT_REFRESH_TIME_VALUE = "3";
 	this.DEFAULT_REFRESH_TIME_UNIT = "Hours";
+	this.DEFAULT_THEME_COLOR = "#FF851B"; //Orange
 
 	//INTER-SCRIPT COMMUNICATION KEYS
 	this.RESET_NEW_FLAGS = "resetNewFlags";
@@ -57,6 +61,8 @@ function constants()
 	this.NEW_SHOWS_COUNT_QUERY = "newShowsCountQuery";
 	this.NEW_SHOWS_COUNT_RESPONSE = "newShowsCountResponse";
 	this.TV_SHOW_PREF_UPDATED = "tvShowPrefUpdated";
+	this.THEME_CHANGED = "themeChanged";
+	this.THEME_UPDATED = "themeUpdated";
 }
 
 function initiate()
@@ -94,6 +100,10 @@ function initiate()
 		communicationManager.updateCompleted();
 	}
 
+	if(!preferencesManager.getPreferenceValue(CONSTANTS.THEME_COLOR_PREF))
+	{
+		preferencesManager.setPreferenceValue(CONSTANTS.THEME_COLOR_PREF, CONSTANTS.DEFAULT_THEME_COLOR);
+	}
 	setTimeout(initiate, communicationManager.getRefreshInterval());
 }
 
@@ -496,6 +506,10 @@ function CommunicationManager()
 					}
 				}
 			}	
+			if(request.messageType == CONSTANTS.THEME_CHANGED)
+			{
+				themeManager.recalculateColors();
+			}
 		}
 	);
 }
@@ -634,6 +648,8 @@ function PreferencesManager()
 	this.REFRESH_TIME_VALUE_KEY = "refreshTimeVal";
 	this.REFRESH_TIME_UNIT_KEY = "refreshTimeUnit";
 	this.TV_SHOW_PREFS_KEY = "tvShowPrefStore";
+	this.THEME_COLOR_KEY = "themeColor";
+
 	this.getPreferenceValue = function(preferenceType)
 	{	
 		return localStorage.getItem(this.getLocalStorageKeyForPreferenceType(preferenceType));
@@ -656,6 +672,10 @@ function PreferencesManager()
 		else if(preferenceType == CONSTANTS.TV_SHOW_PREFS_PREF)
 		{
 			prefKey = this.TV_SHOW_PREFS_KEY;
+		}
+		else if(preferenceType == CONSTANTS.THEME_COLOR_PREF)
+		{
+			prefKey = this.THEME_COLOR_KEY;
 		}
 		return prefKey;
 	}
@@ -719,6 +739,79 @@ function LocalStorageManager()
 			}
 		}
 		return valueString;
+	}
+}
+
+function ThemeManager()
+{
+	this.MAIN_COLOR;
+	this.SHADE_1;
+	this.SHADE_2;
+	this.TINT_1;
+	this.TINT_2;
+	this.COMPLEMENTARY_COLOR;
+	this.SHADE_1_MULTIPLIER = 1/2;
+	this.SHADE_2_MULTIPLIER = 1/4;
+	this.TINT_1_MULTIPLIER = 0.8;
+	this.TINT_2_MULTIPLIER = 0.6;
+	this.recalculateColors = function()
+	{
+		this.MAIN_COLOR = preferencesManager.getPreferenceValue(CONSTANTS.THEME_COLOR_PREF);
+		var mainColorRGB = this.hextorgb(this.MAIN_COLOR);
+		this.SHADE_1 = this.getShade(mainColorRGB, this.SHADE_1_MULTIPLIER);
+		this.SHADE_2 = this.getShade(mainColorRGB, this.SHADE_2_MULTIPLIER);
+		this.TINT_1 = this.getTint(mainColorRGB, this.TINT_1_MULTIPLIER);
+		this.TINT_2 = this.getTint(mainColorRGB, this.TINT_2_MULTIPLIER);
+		this.COMPLEMENTARY_COLOR = this.getComplementaryColor(mainColorRGB);
+		communicationManager.sendMessage(CONSTANTS.THEME_UPDATED);
+	}
+	this.getShade = function(rgbvalue, multiplier)
+	{
+		var rgb = new Array(3);
+		rgb[0] = Math.floor(rgbvalue[0]*multiplier);
+		rgb[1] = Math.floor(rgbvalue[1]*multiplier);
+		rgb[2] = Math.floor(rgbvalue[2]*multiplier);
+		return this.rgbtohex(rgb);
+	}
+
+	this.getTint = function(rgbvalue, multiplier)
+	{
+		var rgb = new Array(3);
+		rgb[0] = Math.floor(rgbvalue[0]+(255-rgbvalue[0])*multiplier);
+		rgb[1] = Math.floor(rgbvalue[1]+(255-rgbvalue[1])*multiplier);
+		rgb[2] = Math.floor(rgbvalue[2]+(255-rgbvalue[2])*multiplier);
+		return this.rgbtohex(rgb);
+	}
+
+	this.getComplementaryColor = function(rgbvalue)
+	{
+		var rgb = new Array(3);
+		rgb[0] = 255-rgbvalue[0];
+		rgb[1] = 255-rgbvalue[1];
+		rgb[2] = 255-rgbvalue[2];
+		return this.rgbtohex(rgb);
+	}
+
+	this.hextorgb = function(hexvalue)
+	{
+		var rgb = new Array(3);
+		if (hexvalue.length == 7 && hexvalue[0]=='#') 
+		{
+			hexvalue = hexvalue.substr(1);
+		}
+		rgb[0] = parseInt(hexvalue.substr(0,2),16);
+		rgb[1] = parseInt(hexvalue.substr(2,2),16);
+		rgb[2] = parseInt(hexvalue.substr(4,2),16);
+		return rgb;
+	}
+
+	this.rgbtohex = function(rgbvalue)
+	{
+		var hex = "#";
+		hex += rgbvalue[0].toString(16).length==1?"0"+rgbvalue[0].toString(16):rgbvalue[0].toString(16);
+		hex += rgbvalue[1].toString(16).length==1?"0"+rgbvalue[1].toString(16):rgbvalue[1].toString(16);
+		hex += rgbvalue[2].toString(16).length==1?"0"+rgbvalue[2].toString(16):rgbvalue[2].toString(16);
+		return hex.toUpperCase();
 	}
 }
 
