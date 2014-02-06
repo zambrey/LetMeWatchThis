@@ -74,7 +74,7 @@
           <div ng-controller="AlertDemoCtrl">
             <input id="tvShowList" type="text" placeholder="Start Typing Show Title..." style="border-radius:0px;" data-provide="typeahead" autocomplete="off" x-webkit-speech speech>
             <button id="addButton" class='btn' ng-click="addAlert()" style="background:#9B4635;border:solid 1px #9B4635; margin-bottom:10px;"><i class="icon-plus icon-white"></i></button>
-            <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)" style = 'margin-bottom:5px;'>{{alert.msg}}</alert>
+            <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)" style = 'margin-bottom:5px;' css-repeat-directive>{{alert.msg}}</alert>
           </div>
         </td>
       </tr>

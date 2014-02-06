@@ -1,5 +1,9 @@
-angular.module('plunker', ['ui.bootstrap']);
-
+angular.module('plunker', ['ui.bootstrap'])
+.directive('cssRepeatDirective', function() {
+  return function(scope, element, attrs) {
+    angular.element(element).css({"background":backgroundPage.themeManager.TINT_1,"color":backgroundPage.themeManager.SHADE_1,"border":"solid 1px "+backgroundPage.themeManager.TINT_2});
+  };
+});
 var backgroundPage = chrome.extension.getBackgroundPage(),
 	timeVal = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.REFRESH_TIME_VAL_PREF),
 	timeUnit = backgroundPage.preferencesManager.getPreferenceValue(backgroundPage.CONSTANTS.REFRESH_TIME_UNIT_PREF),
@@ -210,6 +214,7 @@ function AlertDemoCtrl($scope)
       $scope.alerts.push({msg: tvShowToAdd});
       showsPref.push(tvShowToAdd);
       backgroundPage.preferencesManager.setPreferenceValue(backgroundPage.CONSTANTS.TV_SHOW_PREFS_PREF, showsPref.join("--"));
+      $(".alert").last().css({"background":backgroundPage.themeManager.TINT_1,"color":backgroundPage.themeManager.SHADE_1,"border":"solid 1px "+backgroundPage.themeManager.TINT_2});
       sendMessage(backgroundPage.CONSTANTS.TV_SHOW_PREF_UPDATED, ["ADD", tvShowToAdd]);
     }
     else

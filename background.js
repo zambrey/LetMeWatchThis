@@ -22,6 +22,7 @@ function initiateManagers()
 	localStorageManager = new LocalStorageManager();
 	themeManager = new ThemeManager();
 	CONSTANTS = new constants();
+	themeManager.recalculateColors();
 	communicationManager.sendXMLRequest(CONSTANTS.TV_SHOWS_DIRECTORY_URL, CONSTANTS.TV_SHOWS_DIRECTORY_REQUEST, communicationManager.handleXMLRequestResponse);
 }
 
@@ -831,7 +832,7 @@ function setBadge()
 	if(badgeNumber > 0)
 	{
 		chrome.browserAction.setBadgeText({"text":badgeNumber.toString()});
-		chrome.browserAction.setBadgeBackgroundColor({"color":[155, 70, 53,200]});	
+		chrome.browserAction.setBadgeBackgroundColor({"color":themeManager.SHADE_1});	
 	}
 	else
 	{

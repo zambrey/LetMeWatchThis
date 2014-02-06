@@ -12,13 +12,14 @@ var backgroundPage = chrome.extension.getBackgroundPage(),
 window.onload = function()
 {
 	$(".topToolbar").css({"background":backgroundPage.themeManager.MAIN_COLOR});
-	$(".toolbarItemHolder").css({"background":backgroundPage.themeManager.SHADE_1});
 	$(".form-search").css({"background":backgroundPage.themeManager.MAIN_COLOR});
+	$("a").css({"color":backgroundPage.themeManager.MAIN_COLOR});
+	$(".bar").css({"background-color":backgroundPage.themeManager.MAIN_COLOR});
+	$(".toolbarItemHolder").css({"background":backgroundPage.themeManager.SHADE_1});
 	$("#searchBtn").css({"background":backgroundPage.themeManager.SHADE_1});
 	$(".searchField").css({"border":"solid 1px "+backgroundPage.themeManager.SHADE_1});
 	$("#infoPanel").css({"background":backgroundPage.themeManager.TINT_1,"color":backgroundPage.themeManager.SHADE_1});
-	$("a").css({"color":backgroundPage.themeManager.MAIN_COLOR});
-	$(".bar").css({"background-color":backgroundPage.themeManager.MAIN_COLOR});
+	$("#progressFail").css({"background":backgroundPage.themeManager.TINT_1,"color":backgroundPage.themeManager.SHADE_1});
 }
 
 function initiateManagers()
@@ -93,6 +94,7 @@ function PopupRenderManager()
 							if(showObjects[j].isNew)
 							{
 								popupRenderManager.latestArrivalsContainer.lastChild.className += " newArrival";
+								popupRenderManager.latestArrivalsContainer.lastChild.style.color = backgroundPage.themeManager.COMPLEMENTARY_COLOR;
 							}
 						}
 					}
@@ -182,6 +184,7 @@ function PopupRenderManager()
 		if(showObject.isNew)
 		{
 			showDiv.className += " newArrival";
+			showDiv.style.color = backgroundPage.themeManager.COMPLEMENTARY_COLOR;
 		}
 		clickHandler = popupInteractionManager.getShowRowClickHandler(backgroundPage.CONSTANTS.HOME_URL+showObject.watchURL);
 		showDiv.addEventListener('click',clickHandler);
